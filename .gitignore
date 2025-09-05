@@ -5,3 +5,14 @@
 /BFAWebApp/bin/Debug/net8.0
 /BFAWebApp/obj
 /.vs
+/WayPoint-BFA/bin/Debug/net8.0
+/WayPoint-BFA/obj
+/WayPoint-Domain/bin/Debug/net8.0
+/WayPoint-Domain/obj
+/WayPoint-Infrastructure/bin/Debug/net8.0
+/WayPoint-Infrastructure/obj
+/WayPoint-Models/bin/Debug/net8.0
+/WayPoint-Models/obj/Debug/net8.0
+/WayPoint-Models/obj
+/WayPoint-Test/bin/Debug/net8.0
+/WayPoint-Test/obj

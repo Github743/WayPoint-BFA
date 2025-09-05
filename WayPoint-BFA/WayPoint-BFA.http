@@ -1,0 +1,6 @@
+@WayPoint_BFA_HostAddress = http://localhost:5247
+
+GET {{WayPoint_BFA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
