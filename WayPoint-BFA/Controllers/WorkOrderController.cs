@@ -84,6 +84,11 @@ namespace WayPoint_BFA.Controllers
 
             return Ok(new { success = true });
         }
-
+        [HttpGet("getWorkOrders")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrder>>> GetPendingWorkOrders([FromQuery] int? systemWorkorderId, int? ClientId = null, CancellationToken ct = default)
+        {
+            var rows = await _workorder.GetPendingWorkOrdersbyContext(ClientId, systemWorkorderId, true, ct);
+            return Ok(rows);
+        }
     }
 }

@@ -495,6 +495,18 @@ namespace WayPoint_Infrastructure.Repositories
                 throw;
             }
         }
+        public async Task<IReadOnlyList<WorkOrder>> GetPendingWorkOrdersbyContext(int? Filter, int? systemworkorderid, bool isClientContext, CancellationToken ct = default)
+        {
+            IReadOnlyList<WorkOrder> workOrders = Array.Empty<WorkOrder>();
 
+            if (isClientContext)
+            {
+                var results = await _sql.RetrieveObjectsAsync<WorkOrder>(
+                    new { ClientId = Filter, SystemWorkOrderId = systemworkorderid }, ct);
+
+                workOrders = results.ToList();
+            }
+            return workOrders;
+        }
     }
 }
