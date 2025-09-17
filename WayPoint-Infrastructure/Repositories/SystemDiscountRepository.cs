@@ -1,62 +1,83 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Data;
+﻿using WayPoint.Model;
 using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Interfaces;
-using WayPoint_Infrastructure.StoredProcedures;
-using WayPoint_Models;
 
 namespace WayPoint_Infrastructure.Repositories
 {
-    public class SystemDiscountRepository(ISqlRunner sql) : ISystemDiscountRepository
+    public class SystemDiscountRepository : ISystemDiscountRepository
     {
-        private readonly ISqlRunner _sql = sql;
+        private readonly ISqlEngine _sql;
 
-        public async Task<IReadOnlyList<SystemDiscountScheduleDto>> GetDiscountSchedulesAsync(
-            int workOrderId, int systemDiscountProgramId, CancellationToken ct = default)
+        public SystemDiscountRepository(ISqlEngine sql)
         {
-            var agreementParams = new[]
-            {
-            new SqlParameter("@WorkOrderId", SqlDbType.Int) { Value = workOrderId }
-        };
+            _sql = sql ?? throw new ArgumentNullException(nameof(sql));
+        }
 
-            var agreements = await _sql.QueryProcAsync<WorkOrderClientAgreement, WorkOrderClientAgreementDto>(
-                SqlVerb.Get,
-                parameters: agreementParams,
-                map: r => new WorkOrderClientAgreementDto
+        public async Task<IReadOnlyList<SystemDiscountSchedules>> GetDiscountSchedules(
+            int workOrderId,
+            int systemDiscountProgramId,
+            CancellationToken ct = default)
+        {
+            // null/empty default result
+            var empty = Array.Empty<SystemDiscountSchedules>();
+            systemDiscountProgramId = 3;
+            // fetch agreement (pass anonymous object for parameter)
+            var workOrderClientAgreement = await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(
+                new { WorkOrderId = workOrderId, SystemDiscountProgramId = systemDiscountProgramId },
+                ct);
+
+            // If none found, return empty list
+            if (workOrderClientAgreement == null)
+                return empty;
+
+            // fetch discount schedules using values from agreement
+            var discountSchedules = await _sql.RetrieveObjectsAsync<SystemDiscountSchedules>(
+                new
                 {
-                    WorkOrderId = r.HasColumn("WorkOrderId") && !r.IsDBNull(r.GetOrdinal("WorkOrderId")) ? r.GetInt32(r.GetOrdinal("WorkOrderId")) : workOrderId,
-                    SystemDiscountProgramId = r.HasColumn("SystemDiscountProgramId") && !r.IsDBNull(r.GetOrdinal("SystemDiscountProgramId")) ? r.GetInt32(r.GetOrdinal("SystemDiscountProgramId")) : systemDiscountProgramId,
-                    IsMLCOption = r.HasColumn("IsMLCOption") && !r.IsDBNull(r.GetOrdinal("IsMLCOption")) && r.GetBoolean(r.GetOrdinal("IsMLCOption")),
-                    IsISMOption = r.HasColumn("IsISMOption") && !r.IsDBNull(r.GetOrdinal("IsISMOption")) && r.GetBoolean(r.GetOrdinal("IsISMOption")),
-                    IsISPSOption = r.HasColumn("IsISPSOption") && !r.IsDBNull(r.GetOrdinal("IsISPSOption")) && r.GetBoolean(r.GetOrdinal("IsISPSOption"))
+                    SystemDiscountProgramId = systemDiscountProgramId,
+                    MLC = workOrderClientAgreement.IsMLCOption,
+                    ISM = workOrderClientAgreement.IsISMOption,
+                    ISPS = workOrderClientAgreement.IsISPSOption
                 },
-                ct: ct
-            );
+                ct);
 
-            var agreement = agreements.FirstOrDefault();
-            if (agreement == null)
-                return [];
+            // if the engine returns null (defensive), return empty
+            return discountSchedules ?? empty;
+        }
 
-            var schedulesParams = new[]
-            {
-            new SqlParameter("@SystemDiscountProgramId", SqlDbType.Int) { Value = agreement.SystemDiscountProgramId },
-            new SqlParameter("@MLC", SqlDbType.Bit) { Value = agreement.IsMLCOption },
-            new SqlParameter("@ISM", SqlDbType.Bit) { Value = agreement.IsISMOption },
-            new SqlParameter("@ISPS", SqlDbType.Bit) { Value = agreement.IsISPSOption }
-        };
+        public async Task<IReadOnlyList<SystemDiscountScheduleProducts>> GetDiscountScheduleProducts(
+           int systemDiscountScheduleId,
+           CancellationToken ct = default)
+        {
+            // null/empty default result
+            var empty = Array.Empty<SystemDiscountScheduleProducts>();
 
-            var schedules = await _sql.QueryProcAsync<SystemDiscountSchedules, SystemDiscountScheduleDto>(
-                SqlVerb.Get,
-                parameters: schedulesParams,
-                map: r => new SystemDiscountScheduleDto
-                {
-                    SystemDiscountScheduleId = r.HasColumn("SystemDiscountScheduleId") && !r.IsDBNull(r.GetOrdinal("SystemDiscountScheduleId")) ? r.GetInt32(r.GetOrdinal("SystemDiscountScheduleId")) : 0,
-                    Name = r.HasColumn("Name") && !r.IsDBNull(r.GetOrdinal("Name")) ? r.GetString(r.GetOrdinal("Name")) : string.Empty
-                },
-                ct: ct
-            );
+            // fetch agreement (pass anonymous object for parameter)
+            var discountProducts = await _sql.RetrieveObjectsAsync<SystemDiscountScheduleProducts>(
+                new { SystemDiscountScheduleId = systemDiscountScheduleId },
+                ct);
 
-            return schedules;
+            // If none found, return empty list
+            if (discountProducts == null)
+                return empty;
+
+            return discountProducts.OrderBy(x => x.DefaultOrder).ToList();
+        }
+
+        public async Task<IReadOnlyList<SystemProductDiscountGroup>> GetSystemProductDiscountGroupByName(
+          string systemProductName,
+          CancellationToken ct = default)
+        {
+            var empty = Array.Empty<SystemProductDiscountGroup>();
+
+            var discountProductsdiscount = await _sql.RetrieveObjectsAsync<SystemProductDiscountGroup>(
+                new { SystemProductNameSearchText = systemProductName },
+                ct);
+
+            if (discountProductsdiscount == null)
+                return empty;
+
+            return discountProductsdiscount ?? empty;
         }
     }
 }

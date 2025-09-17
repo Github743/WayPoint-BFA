@@ -8,12 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.8" />
+    <Compile Remove="Data\DbProcBaseNameAttribute.cs" />
+    <Compile Remove="Data\DbProcPrefixAttribute.cs" />
+    <Compile Remove="Data\DbSchemaAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WayPoint-Models\WayPoint-Models.csproj" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\wayPoint.Model\WayPoint.Model.csproj" />
   </ItemGroup>
 
 </Project>

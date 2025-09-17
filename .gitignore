@@ -2,17 +2,20 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/BFAWebApp/bin/Debug/net8.0
-/BFAWebApp/obj
+/.vs/WayPoint-BFA/DesignTimeBuild
+/.vs/WayPoint-BFA/FileContentIndex
+/.vs/WayPoint-BFA/v17
 /.vs
-/WayPoint-BFA/bin/Debug/net8.0
+/WayPoint-BFA/bin
 /WayPoint-BFA/obj
+/WayPoint-BFA/Properties/PublishProfiles
 /WayPoint-Domain/bin/Debug/net8.0
+/WayPoint-Domain/obj/Debug/net8.0
 /WayPoint-Domain/obj
-/WayPoint-Infrastructure/bin/Debug/net8.0
+/WayPoint-Infrastructure/bin
 /WayPoint-Infrastructure/obj
-/WayPoint-Models/bin/Debug/net8.0
-/WayPoint-Models/obj/Debug/net8.0
 /WayPoint-Models/obj
 /WayPoint-Test/bin/Debug/net8.0
 /WayPoint-Test/obj
+/wayPoint.Model/bin/Debug/net8.0
+/wayPoint.Model/obj

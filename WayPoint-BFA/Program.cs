@@ -1,20 +1,36 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
+using WayPoint.Model;
 using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Interfaces;
-using WayPoint_Infrastructure.Options;
 using WayPoint_Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<DbProcOptions>(builder.Configuration.GetSection("DbProcedures"));
-builder.Services.AddSingleton<ISqlRunner, SqlRunner>();
+builder.Services.AddDbContextFactory<WayPointDbContext>(opts =>
+    opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging());
+
+builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<WayPointDbContext>());
+
+builder.Services.AddScoped<ISqlEngine, SqlEngine>();
+builder.Services.AddScoped<IEfReadEngine<WayPointDbContext>, EfReadEngine<WayPointDbContext>>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<ISystemWorkOrderRepository, SystemWorkOrderRepository>();
+builder.Services.AddScoped<IWorkOrder, WorkorderRepository>();
 builder.Services.AddScoped<ISystemDiscountRepository, SystemDiscountRepository>();
+builder.Services.AddScoped<ILookUpRepository, LookUpRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
+});
 
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy());
