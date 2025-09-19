@@ -32,6 +32,8 @@ namespace WayPoint.Model
 
         public int WorkOrderId { get; set; }
 
+        public int WorkOrderClientAgreementId { get; set; }
+
         public bool IsLISCRUser { get; set; }
         public string? WorkOrderName { get; set; }
 

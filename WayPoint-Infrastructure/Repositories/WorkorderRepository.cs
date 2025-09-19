@@ -16,6 +16,11 @@ namespace WayPoint_Infrastructure.Repositories
         private readonly ISqlEngine _sql = sql;
         private readonly IEfReadEngine<WayPointDbContext> _ef = ef;
         private readonly DbContext _db = db;
+
+        public async Task<WorkOrder> GetWorkOrder(int workOrderId, CancellationToken ct)
+        {
+            return await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+        }
         public async Task<WorkOrder> CreateWorkOrder(WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
         {
             WorkOrder workOrder = new();
@@ -335,8 +340,8 @@ namespace WayPoint_Infrastructure.Repositories
             CancellationToken ct = default)
         {
             var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
-
-            if (workOrder.WorkOrderId == 0 )
+            var workOrderClientAgreement = await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(new { workOrderId }, ct);
+            if (workOrder.WorkOrderId == 0)
                 throw new ArgumentException("Invalid workorder", nameof(workOrderId));
 
             string tableName = "ClientAgreement";
@@ -357,7 +362,8 @@ namespace WayPoint_Infrastructure.Repositories
             vm.ClientName = workOrder.ClientName;
             vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
             vm.WorkOrderId = workOrderId;
-
+            vm.WorkOrderClientAgreementId = workOrderClientAgreement.WorkOrderClientAgreementId;
+            vm.WorkOrderName = workOrder.WorkOrderName;
             return vm;
         }
 
@@ -434,10 +440,22 @@ namespace WayPoint_Infrastructure.Repositories
                 }
                 await _db.SaveChangesAsync(ct);
                 var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+                if (workOrder != null)
+                {
+                    var selected = new List<string>();
+
+                    if (dto.IsMLCOption) selected.Add("MLC");
+                    if (dto.IsISMOption) selected.Add("ISM");
+                    if (dto.IsISPSOption) selected.Add("ISPS");
+
+                    workOrder.Detail = string.Join(", ", selected);
+                    ModelHelper.UpdateModelState(workOrder, ObjectState.Modified, "dmeka", DateTime.Now);
+                    await _sql.SaveEntityAsync(workOrder, null, null, ct);
+                }
                 await SaveClientAgreement(workOrderId, ct, dto);
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

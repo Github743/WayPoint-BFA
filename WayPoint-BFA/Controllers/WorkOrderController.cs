@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using k8s.Models;
+using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
 using WayPoint_Infrastructure.Interfaces;
 
@@ -9,6 +10,13 @@ namespace WayPoint_BFA.Controllers
     public class WorkOrderController(IWorkOrder workorder) : ControllerBase
     {
         private readonly IWorkOrder _workorder = workorder;
+
+        [HttpGet("workorder/{workOrderId:int}")]
+        public async Task<ActionResult<WorkOrder>> GetWorkOrder(int workOrderId, CancellationToken ct = default)
+        {
+            var workOrder = await _workorder.GetWorkOrder(workOrderId, ct);
+            return Ok(workOrder);
+        }
 
         [HttpPost("createwo")]
         public async Task<ActionResult<WorkOrder>> CreateWorkOrder(

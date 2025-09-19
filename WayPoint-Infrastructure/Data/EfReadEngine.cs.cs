@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Data.SqlTypes;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace WayPoint_Infrastructure.Data
 {
@@ -107,5 +108,125 @@ namespace WayPoint_Infrastructure.Data
             return await projected.ToListAsync(ct);
         }
 
+        public async Task<TEntity> SaveEntity<TEntity>(TEntity entity, CancellationToken ct = default)
+            where TEntity : class
+        {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+            await using var ctx = _factory.CreateDbContext();
+
+            var entityType = ctx.Model.FindEntityType(typeof(TEntity))
+                             ?? throw new InvalidOperationException($"Entity type {typeof(TEntity).Name} is not part of the DbContext model.");
+
+            var pk = entityType.FindPrimaryKey() ?? throw new InvalidOperationException($"No primary key defined on {typeof(TEntity).Name}.");
+            var pkProps = pk.Properties.Select(p => p.PropertyInfo ?? throw new InvalidOperationException($"PK property {p.Name} has no PropertyInfo")).ToArray();
+
+            var prevAutoDetect = ctx.ChangeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                ctx.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                var isNew = IsPrimaryKeyDefault(entity, pkProps);
+
+                if (isNew)
+                    await ctx.Set<TEntity>().AddAsync(entity, ct);
+                else
+                    ctx.Set<TEntity>().Update(entity);
+
+                await ctx.SaveChangesAsync(ct);
+
+                return entity;
+            }
+            finally
+            {
+                ctx.ChangeTracker.AutoDetectChangesEnabled = prevAutoDetect;
+            }
+        }
+
+        public async Task<List<TEntity>> SaveEntities<TEntity>(
+           IEnumerable<TEntity> entities,
+           bool useTransaction = true,
+           Func<TContext, List<TEntity>, CancellationToken, Task>? bulkOperation = null,
+           CancellationToken ct = default) where TEntity : class
+        {
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+
+            var list = entities.ToList();
+            if (!list.Any()) return new List<TEntity>();
+
+            await using var ctx = _factory.CreateDbContext();
+
+            var entityType = ctx.Model.FindEntityType(typeof(TEntity))
+                             ?? throw new InvalidOperationException($"Entity type {typeof(TEntity).Name} is not part of the DbContext model.");
+
+            var pk = entityType.FindPrimaryKey() ?? throw new InvalidOperationException($"No primary key defined on {typeof(TEntity).Name}.");
+            var pkProps = pk.Properties.Select(p => p.PropertyInfo ?? throw new InvalidOperationException($"PK property {p.Name} has no PropertyInfo")).ToArray();
+
+            var prevAutoDetect = ctx.ChangeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                ctx.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                await using var tx = useTransaction ? await ctx.Database.BeginTransactionAsync(ct) : null;
+
+                if (bulkOperation != null)
+                {
+                    // delegate to external bulk operation (e.g. EFCore.BulkExtensions)
+                    await bulkOperation(ctx, list, ct);
+                }
+                else
+                {
+                    // Partition into new vs existing
+                    var toAdd = list.Where(e => IsPrimaryKeyDefault(e, pkProps)).ToList();
+                    var toUpdate = list.Except(toAdd).ToList();
+
+                    if (toAdd.Count > 0)
+                        await ctx.Set<TEntity>().AddRangeAsync(toAdd, ct);
+
+                    if (toUpdate.Count > 0)
+                        ctx.Set<TEntity>().UpdateRange(toUpdate);
+
+                    await ctx.SaveChangesAsync(ct);
+                }
+
+                if (tx != null)
+                    await tx.CommitAsync(ct);
+
+                return list;
+            }
+            finally
+            {
+                ctx.ChangeTracker.AutoDetectChangesEnabled = prevAutoDetect;
+            }
+        }
+
+        private static bool IsPrimaryKeyDefault<TEntity>(TEntity entity, PropertyInfo[] pkProps)
+        {
+            foreach (var p in pkProps)
+            {
+                var val = p.GetValue(entity);
+                if (!IsDefaultValue(val)) return false;
+            }
+            return true;
+        }
+
+        private static bool IsDefaultValue(object? value)
+        {
+            if (value == null) return true;
+
+            return value switch
+            {
+                int i => i == 0,
+                long l => l == 0L,
+                Guid g => g == Guid.Empty,
+                short s => s == 0,
+                byte b => b == 0,
+                string s => string.IsNullOrEmpty(s),
+                _ => false
+            };
+        }
+
     }
+
+
 }
