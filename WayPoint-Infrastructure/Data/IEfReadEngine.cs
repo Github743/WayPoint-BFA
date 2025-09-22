@@ -23,14 +23,5 @@ namespace WayPoint_Infrastructure.Data
         Task<IReadOnlyList<TResult>> ExecuteQueryAsync<TResult>(
             Func<TContext, IQueryable<TResult>> queryBuilder, 
             CancellationToken ct = default);
-
-        Task<TEntity> SaveEntity<TEntity>(TEntity entity, CancellationToken ct = default)
-            where TEntity : class;
-
-        Task<List<TEntity>> SaveEntities<TEntity>(
-           IEnumerable<TEntity> entities,
-           bool useTransaction = true,
-           Func<TContext, List<TEntity>, CancellationToken, Task>? bulkOperation = null,
-           CancellationToken ct = default) where TEntity : class;
     }
 }

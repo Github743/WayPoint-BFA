@@ -8,10 +8,9 @@ namespace WayPoint_BFA.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class ClientAgreementController(ISystemDiscountRepository systemDiscountRepository, IClientAgreementRepository clientAgreementRepository) : ControllerBase
+    public class ClientAgreementController(ISystemDiscountRepository systemDiscountRepository) : ControllerBase
     {
         private readonly ISystemDiscountRepository _systemDiscountRepository = systemDiscountRepository;
-        private readonly IClientAgreementRepository _clientAgreementRepository = clientAgreementRepository;
 
         [HttpGet("schedules")]
         public async Task<ActionResult<IReadOnlyList<SystemDiscountSchedules>>> GetDiscountSchedules([FromQuery] int workOrderId, int systemDiscountProgramId, CancellationToken ct = default)
@@ -34,39 +33,51 @@ namespace WayPoint_BFA.Controllers
             return Ok(rows);
         }
 
-        [HttpPost("SaveEntityProducts")]
-        public async Task<ActionResult<bool>> SaveEntityProducts([FromBody] List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts, [FromQuery] int workOrderId, CancellationToken ct = default)
+        //[HttpPost("SaveEntityProducts")]
+        //public async Task<ActionResult<bool>> SaveEntityProducts([FromBody] List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts, [FromQuery] int workOrderId, CancellationToken ct = default)
+        //{
+        //    if (workOrderClientAgreementEntityProducts == null || workOrderClientAgreementEntityProducts.Count == 0
+        //        || workOrderId == 0)
+        //        return BadRequest("No products provided.");
+
+        //    bool result = await _clientAgreementRepository.SaveEntityProducts(workOrderClientAgreementEntityProducts, workOrderId, ct);
+
+        //    if (!result)
+        //        return StatusCode(StatusCodes.Status500InternalServerError, false);
+
+        //    return Ok(true);
+        //}
+
+        //[HttpGet("GetEntityProducts")]
+        //public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetWorkOrderClientAgreementEntityProducts(int workOrderId)
+        //{
+        //    var workOrderProducts = await _clientAgreementRepository.GetWorkOrderClientAgreementEntityProducts(workOrderId);
+        //    return Ok(workOrderProducts);
+        //}
+
+        //[HttpGet("ClientAgreement/{workOrderId:int}")]
+        //public async Task<ActionResult<WorkOrderClientAgreement>> GetWorkOrderClientAgreement(int workOrderId)
+        //{
+        //    var workOrderClientAgreement = await _clientAgreementRepository.GetWorkOrderClientAgreement(workOrderId);
+        //    return Ok(workOrderClientAgreement);
+        //}
+
+        //[HttpGet("GetAdditionalDiscountedProducts")]
+        //public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetAdditionalDiscountedProducts(int workOrderId)
+        //{
+        //    var additionalDiscountedProducts = await _clientAgreementRepository.GetAdditionalDiscountedProducts(workOrderId);
+        //    return Ok(additionalDiscountedProducts);
+        //}
+        [HttpGet("getAdditionalDiscount_WOClientAgreementProducts")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetAdditionalDiscountWOClientAgreementProducts(int workOrderClientAgreementId, int? SystemProductId)
         {
-            if (workOrderClientAgreementEntityProducts == null || workOrderClientAgreementEntityProducts.Count == 0
-                || workOrderId == 0)
-                return BadRequest("No products provided.");
-
-            bool result = await _clientAgreementRepository.SaveEntityProducts(workOrderClientAgreementEntityProducts, workOrderId, ct);
-
-            if (!result)
-                return StatusCode(StatusCodes.Status500InternalServerError, false);
-
-            return Ok(true);
+            var additionalDiscountedProducts = await _systemDiscountRepository.GeAdditionalDiscountWOClientAgreementProducts(workOrderClientAgreementId,SystemProductId);
+            return Ok(additionalDiscountedProducts);
         }
-
-        [HttpGet("GetEntityProducts")]
-        public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetWorkOrderClientAgreementEntityProducts(int workOrderId)
+        [HttpGet("getWorkOrderClientAgreement_Entities")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetWorkOrderClientAgreementEntities(int workOrderClientAgreementId, int clientId)
         {
-            var workOrderProducts = await _clientAgreementRepository.GetWorkOrderClientAgreementEntityProducts(workOrderId);
-            return Ok(workOrderProducts);
-        }
-
-        [HttpGet("ClientAgreement/{workOrderId:int}")]
-        public async Task<ActionResult<WorkOrderClientAgreement>> GetWorkOrderClientAgreement(int workOrderId)
-        {
-            var workOrderClientAgreement = await _clientAgreementRepository.GetWorkOrderClientAgreement(workOrderId);
-            return Ok(workOrderClientAgreement);
-        }
-
-        [HttpGet("GetAdditionalDiscountedProducts")]
-        public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetAdditionalDiscountedProducts(int workOrderId)
-        {
-            var additionalDiscountedProducts = await _clientAgreementRepository.GetAdditionalDiscountedProducts(workOrderId);
+            var additionalDiscountedProducts = await _systemDiscountRepository.GetWorkOrderClientAgreementEntities(workOrderClientAgreementId,clientId);
             return Ok(additionalDiscountedProducts);
         }
     }

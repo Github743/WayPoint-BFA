@@ -1,6 +1,9 @@
-﻿using k8s.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
+using WayPoint.Model.Enhanced;
+using WayPoint.Model.Helper;
+//using WayPoint.Model.IHelper;
+using WayPoint.Model.ViewModels;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_BFA.Controllers
@@ -10,13 +13,7 @@ namespace WayPoint_BFA.Controllers
     public class WorkOrderController(IWorkOrder workorder) : ControllerBase
     {
         private readonly IWorkOrder _workorder = workorder;
-
-        [HttpGet("workorder/{workOrderId:int}")]
-        public async Task<ActionResult<WorkOrder>> GetWorkOrder(int workOrderId, CancellationToken ct = default)
-        {
-            var workOrder = await _workorder.GetWorkOrder(workOrderId, ct);
-            return Ok(workOrder);
-        }
+       // private readonly IBaseHelper _baseHelper = BaseHelper;
 
         [HttpPost("createwo")]
         public async Task<ActionResult<WorkOrder>> CreateWorkOrder(
@@ -97,6 +94,22 @@ namespace WayPoint_BFA.Controllers
         {
             var rows = await _workorder.GetPendingWorkOrdersbyContext(ClientId, systemWorkorderId, true, ct);
             return Ok(rows);
+        }
+        [HttpGet("getWorkOrderPreValidation")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrder>>> WorkOrderPreValidation([FromBody] WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
+        {
+
+            var rows = await GetSystemWorkOrderUserPermissions(workOrderCreationViewModel.SystemWorkOrderId, ct);
+            return Ok(rows);
+        }
+        [HttpGet("getSystemWorkOrderUserPermissions")]
+        public async Task<UserPermissionViewModel> GetSystemWorkOrderUserPermissions(int systemWorkOrderId, CancellationToken ct = default)
+        {
+            UserPermissionViewModel model = new();
+            List<SystemWorkOrderGroup> systemWorkOrderGroups = null;
+            systemWorkOrderGroups = await _workorder.GetSystemWorkOrderGroup(systemWorkOrderId, ct);
+            //WayPointToken token = GetUserToken();
+            return model;
         }
     }
 }

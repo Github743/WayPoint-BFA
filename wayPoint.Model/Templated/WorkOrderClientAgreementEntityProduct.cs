@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
-    [Table("WorkOrderClientAgreementEntityProduct", Schema = "WO")]
-    public partial class WorkOrderClientAgreementEntityProduct : BaseModel
+   public partial class WorkOrderClientAgreementEntityProduct : BaseModel
     {
         #region Properties
 
@@ -19,7 +20,12 @@ namespace WayPoint.Model
             {
                 return "WO.usp_";
             }
-        } // end of schema name property         
+        } // end of schema name property 
+
+        ///<summary>
+        /// Get or Set the Id property of WorkOrderClientAgreementEntityProduct
+        ///</summary>
+        public  int Id { get { return WorkOrderClientAgreementEntityProductId; } set { WorkOrderClientAgreementEntityProductId = value; } }
 
         ///<summary>
         /// Get or Set the WorkOrderClientAgreementEntityProductId Property of WorkOrderClientAgreementEntityProduct
@@ -28,7 +34,6 @@ namespace WayPoint.Model
 
 
         [DisplayName("Work Order Client Agreement Entity Product Id")]
-        [Key]
         public int WorkOrderClientAgreementEntityProductId { get; set; }
 
         ///<summary>

@@ -11,7 +11,7 @@ namespace WayPoint_Infrastructure.Repositories
 
         public async Task<IReadOnlyList<ClientDetail>> GetClientsAsync(
             string clientSearch, CancellationToken ct = default)
-        {
+        {            
             var queryable = await _sql.RetrieveObjectsAsync<ClientDetail>(
                 new { SearchParam = clientSearch },
                 ct
@@ -20,11 +20,6 @@ namespace WayPoint_Infrastructure.Repositories
             var list = queryable.ToList();
 
             return new ReadOnlyCollection<ClientDetail>(list);
-        }
-
-        public async Task<Client> GetClient(int clientId, CancellationToken ct = default)
-        {
-            return await _sql.RetrieveObjectAsync<Client>(new { clientId }, ct);
         }
     }
 }
