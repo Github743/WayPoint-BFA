@@ -1,4 +1,7 @@
-﻿using WayPoint.Model;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
+using WayPoint.Model;
 
 namespace WayPoint_Infrastructure.Interfaces
 {
@@ -9,6 +12,11 @@ namespace WayPoint_Infrastructure.Interfaces
         Task<IReadOnlyList<WorkOrderClientAgreementEntityProduct>> GetWorkOrderClientAgreementEntityProducts(int workOrderId, CancellationToken ct = default);
 
         Task<WorkOrderClientAgreement> GetWorkOrderClientAgreement(int workOrderId, CancellationToken ct = default);
+        
         Task<IReadOnlyList<WorkOrderClientAgreementEntityProduct>> GetAdditionalDiscountedProducts(int workOrderId, CancellationToken ct = default);
+
+        Task<bool> UpdateEntityProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default);
+
+        Task<bool> RemoveEntityProduct(int workOrderClientAgreementEntityProductId, CancellationToken ct = default);
     }
 }

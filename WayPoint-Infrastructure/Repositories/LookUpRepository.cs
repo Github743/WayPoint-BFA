@@ -20,21 +20,13 @@ namespace WayPoint_Infrastructure.Repositories
         public async Task<IReadOnlyList<Lookup>> GetLookupsByTypeName(string lookupTypebyName, CancellationToken ct = default)
         {
             {
-                // null/empty default result
                 var empty = Array.Empty<Lookup>();
-                //lookupTypebyName = "ProductGroupType";
-                lookupTypebyName = "DiscountType";
-                // fetch agreement (pass anonymous object for parameter)
                 var lookups = await _sql.RetrieveObjectsAsync<Lookup>(
                     new { LookupTypeName = lookupTypebyName },
                     ct);
 
-                // If none found, return empty list
                 if (lookups == null)
                     return empty;
-
-
-                // if the engine returns null (defensive), return empty
                 return lookups ?? empty;
             }
         }

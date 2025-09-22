@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using WayPoint.Model;
 using WayPoint_Infrastructure.Data;
-using WayPoint_Infrastructure.Helpers;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_Infrastructure.Repositories
@@ -91,6 +89,49 @@ namespace WayPoint_Infrastructure.Repositories
                         .ToList();
 
             return new ReadOnlyCollection<WorkOrderClientAgreementEntityProduct>(list);
+        }
+
+        public async Task<bool> UpdateEntityProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
+        {
+            try
+            {
+                var agreementEntityProduct = await _sql.RetrieveObjectAsync<WorkOrderClientAgreementEntityProduct>(new { workOrderClientAgreementEntityProduct.WorkOrderClientAgreementEntityProductId }, ct);
+                if (agreementEntityProduct == null || agreementEntityProduct.WorkOrderClientAgreementEntityProductId == 0)
+                    return false;
+
+                agreementEntityProduct.SystemProductId = workOrderClientAgreementEntityProduct.SystemProductId;
+                agreementEntityProduct.DiscountType = workOrderClientAgreementEntityProduct.DiscountType;
+                agreementEntityProduct.Amount = workOrderClientAgreementEntityProduct.Amount;
+                agreementEntityProduct.LastUpdatedBy = "dmeka";
+                agreementEntityProduct.LastUpdateDate = DateTime.Now;
+
+                await _ef.SaveEntity(agreementEntityProduct,
+                    ct: ct);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveEntityProduct(int workOrderClientAgreementEntityProductId, CancellationToken ct = default)
+        {
+            try
+            {
+                var agreementEntityProduct = await _sql.RetrieveObjectAsync<WorkOrderClientAgreementEntityProduct>(new { workOrderClientAgreementEntityProductId }, ct);
+                if (agreementEntityProduct == null || agreementEntityProduct.WorkOrderClientAgreementEntityProductId == 0)
+                    return false;
+
+                agreementEntityProduct.LastUpdatedBy = "dmeka";
+                agreementEntityProduct.LastUpdateDate = DateTime.Now;
+                agreementEntityProduct.Removed = true;
+                await _ef.SaveEntity(agreementEntityProduct,
+                    ct: ct);
+                return true;
+            }
+            catch (Exception) { return false; }
+
         }
     }
 }

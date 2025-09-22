@@ -69,5 +69,20 @@ namespace WayPoint_BFA.Controllers
             var additionalDiscountedProducts = await _clientAgreementRepository.GetAdditionalDiscountedProducts(workOrderId);
             return Ok(additionalDiscountedProducts);
         }
+
+        [HttpPost("UpdateEntity")]
+        public async Task<ActionResult<bool>> UpdateEntityProduct([FromBody] WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
+        {
+            bool result = await _clientAgreementRepository.UpdateEntityProduct(workOrderClientAgreementEntityProduct, ct);
+            return Ok(result);
+        }
+
+        [HttpPost("RemoveEntity")]
+        public async Task<ActionResult<bool>> RemoveEntityProduct([FromBody] int workOrderClientAgreementEntityProductId, CancellationToken ct = default)
+        {
+            bool result = await _clientAgreementRepository.RemoveEntityProduct(workOrderClientAgreementEntityProductId, ct);
+            return Ok(result);
+        }
+
     }
 }
