@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,7 +18,7 @@ namespace WayPoint.Model
             {
                 return "WO.usp_";
             }
-        } // end of schema name property         
+        } // end of schema name property 
 
         ///<summary>
         /// Get or Set the WorkOrderClientAgreementEntityProductId Property of WorkOrderClientAgreementEntityProduct

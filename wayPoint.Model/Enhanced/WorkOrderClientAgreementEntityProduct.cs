@@ -1,9 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
     public partial class WorkOrderClientAgreementEntityProduct
     {
+
         #region Properties
 
         /// <summary>
@@ -66,7 +72,6 @@ namespace WayPoint.Model
         [DbIgnore]
         [NotMapped]
         public string? ProductCode { get; set; }
-
         [DbIgnore]
         [NotMapped]
         public int? ProductGroupTypeId { get; set; }
@@ -74,7 +79,10 @@ namespace WayPoint.Model
         [DbIgnore]
         [NotMapped]
         public int? TonnageBillingReference { get; set; }
-        
+
+
+        //public int? WorkOrderId { get; set; }
         #endregion
-    }
+
+    } // end of class
 }

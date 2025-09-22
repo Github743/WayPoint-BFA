@@ -3,7 +3,9 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using WayPoint.Model;
+using WayPoint.Model.Enhanced;
 using WayPoint.Model.Helper;
+using WayPoint.Model.ViewModels;
 using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Helpers;
 using WayPoint_Infrastructure.Interfaces;
@@ -16,7 +18,6 @@ namespace WayPoint_Infrastructure.Repositories
         private readonly ISqlEngine _sql = sql;
         private readonly IEfReadEngine<WayPointDbContext> _ef = ef;
         private readonly DbContext _db = db;
-
         public async Task<WorkOrder> GetWorkOrder(int workOrderId, CancellationToken ct)
         {
             return await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
@@ -340,8 +341,8 @@ namespace WayPoint_Infrastructure.Repositories
             CancellationToken ct = default)
         {
             var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
-            var workOrderClientAgreement = await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(new { workOrderId }, ct);
-            if (workOrder.WorkOrderId == 0)
+
+            if (workOrder.WorkOrderId == 0 )
                 throw new ArgumentException("Invalid workorder", nameof(workOrderId));
 
             string tableName = "ClientAgreement";
@@ -362,8 +363,7 @@ namespace WayPoint_Infrastructure.Repositories
             vm.ClientName = workOrder.ClientName;
             vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
             vm.WorkOrderId = workOrderId;
-            vm.WorkOrderClientAgreementId = workOrderClientAgreement.WorkOrderClientAgreementId;
-            vm.WorkOrderName = workOrder.WorkOrderName;
+
             return vm;
         }
 
@@ -440,22 +440,10 @@ namespace WayPoint_Infrastructure.Repositories
                 }
                 await _db.SaveChangesAsync(ct);
                 var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
-                if (workOrder != null)
-                {
-                    var selected = new List<string>();
-
-                    if (dto.IsMLCOption) selected.Add("MLC");
-                    if (dto.IsISMOption) selected.Add("ISM");
-                    if (dto.IsISPSOption) selected.Add("ISPS");
-
-                    workOrder.Detail = string.Join(", ", selected);
-                    ModelHelper.UpdateModelState(workOrder, ObjectState.Modified, "dmeka", DateTime.Now);
-                    await _sql.SaveEntityAsync(workOrder, null, null, ct);
-                }
                 await SaveClientAgreement(workOrderId, ct, dto);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -526,5 +514,14 @@ namespace WayPoint_Infrastructure.Repositories
             }
             return workOrders;
         }
+        public async Task<List<SystemWorkOrderGroup>> GetSystemWorkOrderGroup(int systemWorkOrderId, CancellationToken ct = default)
+        {
+            List<SystemWorkOrderGroup> systemWorkOrderGroup = new();
+
+            var result = await _sql.RetrieveObjectsAsync<SystemWorkOrderGroup>(
+                new { SystemWorkOrderId = systemWorkOrderId }, ct);
+            return systemWorkOrderGroup;
+        }
+
     }
 }

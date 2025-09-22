@@ -9,7 +9,6 @@ namespace WayPoint.Model
 
         public DbSet<WorkOrderSettingField> WorkOrderSettingFields { get; set; }
         public DbSet<SystemWorkOrderSettingField> SystemWorkOrderSettingFields { get; set; }
-
         public DbSet<WorkOrderClientAgreementEntityProduct> WorkOrderClientAgreementEntityProducts { get; set; }
 
 

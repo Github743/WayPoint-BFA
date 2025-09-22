@@ -102,8 +102,11 @@ namespace WayPoint_Infrastructure.Repositories
                 agreementEntityProduct.SystemProductId = workOrderClientAgreementEntityProduct.SystemProductId;
                 agreementEntityProduct.DiscountType = workOrderClientAgreementEntityProduct.DiscountType;
                 agreementEntityProduct.Amount = workOrderClientAgreementEntityProduct.Amount;
+                agreementEntityProduct.LimitPerYear = workOrderClientAgreementEntityProduct.LimitPerYear;
+                agreementEntityProduct.ExpiryDate = workOrderClientAgreementEntityProduct.ExpiryDate;
                 agreementEntityProduct.LastUpdatedBy = "dmeka";
                 agreementEntityProduct.LastUpdateDate = DateTime.Now;
+
 
                 await _ef.SaveEntity(agreementEntityProduct,
                     ct: ct);
@@ -130,7 +133,7 @@ namespace WayPoint_Infrastructure.Repositories
                     ct: ct);
                 return true;
             }
-            catch (Exception) { return false; }
+            catch (Exception ex) { return false; }
 
         }
     }

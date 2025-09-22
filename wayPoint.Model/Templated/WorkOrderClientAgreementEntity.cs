@@ -1,4 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
@@ -16,6 +21,11 @@ namespace WayPoint.Model
                 return "WO.usp_";
             }
         } // end of schema name property 
+
+        ///<summary>
+        /// Get or Set the Id property of WorkOrderClientAgreementEntity
+        ///</summary>
+        public int Id { get { return WorkOrderClientAgreementEntityId; } set { WorkOrderClientAgreementEntityId = value; } }
 
         ///<summary>
         /// Get or Set the WorkOrderClientAgreementEntityId Property of WorkOrderClientAgreementEntity

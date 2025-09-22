@@ -107,7 +107,6 @@ namespace WayPoint_Infrastructure.Data
 
             return await projected.ToListAsync(ct);
         }
-
         public async Task<TEntity> SaveEntity<TEntity>(TEntity entity, CancellationToken ct = default)
             where TEntity : class
         {

@@ -70,6 +70,7 @@ namespace WayPoint_BFA.Controllers
             return Ok(additionalDiscountedProducts);
         }
 
+
         [HttpPost("UpdateEntity")]
         public async Task<ActionResult<bool>> UpdateEntityProduct([FromBody] WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
         {
