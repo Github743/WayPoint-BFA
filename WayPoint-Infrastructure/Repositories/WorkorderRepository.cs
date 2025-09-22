@@ -18,6 +18,10 @@ namespace WayPoint_Infrastructure.Repositories
         private readonly ISqlEngine _sql = sql;
         private readonly IEfReadEngine<WayPointDbContext> _ef = ef;
         private readonly DbContext _db = db;
+        public async Task<WorkOrder> GetWorkOrder(int workOrderId, CancellationToken ct)
+        {
+            return await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+        }
         public async Task<WorkOrder> CreateWorkOrder(WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
         {
             WorkOrder workOrder = new();

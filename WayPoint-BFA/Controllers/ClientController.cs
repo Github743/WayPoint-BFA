@@ -18,15 +18,15 @@ namespace WayPoint_BFA.Controllers
             return Ok(rows);
         }
 
-        //[HttpGet("Client/{clientId:int}")]
-        //public async Task<ActionResult<ClientDetail>> GetClient(int clientId, CancellationToken ct = default)
-        //{
-        //    var client = await _service.GetClient(clientId, ct);
+        [HttpGet("Client/{clientId:int}")]
+        public async Task<ActionResult<ClientDetail>> GetClient(int clientId, CancellationToken ct = default)
+        {
+            var client = await _service.GetClient(clientId, ct);
 
-        //    if (client == null)
-        //        return NotFound();
+            if (client == null)
+                return NotFound();
 
-        //    return Ok(client);
-        //}
+            return Ok(client);
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace WayPoint_Infrastructure.Repositories
             systemDiscountProgramId = 3;
             // fetch agreement (pass anonymous object for parameter)
             var workOrderClientAgreement = await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(
-                new { WorkOrderId = workOrderId, SystemDiscountProgramId = systemDiscountProgramId },
+                new { WorkOrderId = workOrderId},
                 ct);
 
             // If none found, return empty list

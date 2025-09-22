@@ -21,5 +21,10 @@ namespace WayPoint_Infrastructure.Repositories
 
             return new ReadOnlyCollection<ClientDetail>(list);
         }
+
+        public async Task<Client> GetClient(int clientId, CancellationToken ct = default)
+        {
+            return await _sql.RetrieveObjectAsync<Client>(new { clientId }, ct);
+        }
     }
 }
