@@ -28,6 +28,7 @@ builder.Services.AddScoped<IClientAgreementRepository, ClientAgreementRepository
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });

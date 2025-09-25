@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WayPoint.Model.Enhanced
+namespace WayPoint.Model
 {
     public partial class SystemWorkOrderGroup
     {
+        [DbIgnore]
         public string SystemGroupName { get; set; }
     }
 }

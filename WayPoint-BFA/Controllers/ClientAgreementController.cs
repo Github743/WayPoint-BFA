@@ -63,14 +63,18 @@ namespace WayPoint_BFA.Controllers
             return Ok(workOrderClientAgreement);
         }
 
-        [HttpGet("GetAdditionalDiscountedProducts")]
+        [HttpGet("AdditionalDiscountedProducts")]
         public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetAdditionalDiscountedProducts(int workOrderId)
         {
             var additionalDiscountedProducts = await _clientAgreementRepository.GetAdditionalDiscountedProducts(workOrderId);
             return Ok(additionalDiscountedProducts);
         }
-
-
+        [HttpGet("WorkOrderClientAgreementEntities")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> GetWorkOrderClientAgreementEntities(int workOrderClientAgreementId, int clientId)
+        {
+            var additionalDiscountedProducts = await _systemDiscountRepository.GetWorkOrderClientAgreementEntities(workOrderClientAgreementId, clientId);
+            return Ok(additionalDiscountedProducts);
+        }
         [HttpPost("UpdateEntity")]
         public async Task<ActionResult<bool>> UpdateEntityProduct([FromBody] WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
         {

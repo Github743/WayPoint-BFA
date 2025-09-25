@@ -17,9 +17,6 @@ namespace WayPoint_Infrastructure.Interfaces
         Task<IReadOnlyList<SystemProductDiscountGroup>> GetSystemProductDiscountGroupByName(
         string systemProductName,
         CancellationToken ct = default);
-        Task<IReadOnlyList<WorkOrderClientAgreementEntityProduct>> GeAdditionalDiscountWOClientAgreementProducts(
-        int workOrderClientAgreementId, int? SystemProductId,
-        CancellationToken ct = default);
         Task<IReadOnlyList<WorkOrderClientAgreementEntity>> GetWorkOrderClientAgreementEntities(
        int workOrderClientAgreementId, int clientId,
        CancellationToken ct = default);
