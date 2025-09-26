@@ -35,13 +35,13 @@ namespace WayPoint_BFA.Controllers
         }
 
         [HttpPost("SaveEntityProducts")]
-        public async Task<ActionResult<bool>> SaveEntityProducts([FromBody] List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts, [FromQuery] int workOrderId, CancellationToken ct = default)
+        public async Task<ActionResult<bool>> SaveEntityProducts([FromBody] List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts, [FromQuery] int workOrderId, int systemDiscountScheduleId, CancellationToken ct = default)
         {
             if (workOrderClientAgreementEntityProducts == null || workOrderClientAgreementEntityProducts.Count == 0
                 || workOrderId == 0)
                 return BadRequest("No products provided.");
 
-            bool result = await _clientAgreementRepository.SaveEntityProducts(workOrderClientAgreementEntityProducts, workOrderId, ct);
+            bool result = await _clientAgreementRepository.SaveEntityProducts(workOrderClientAgreementEntityProducts, workOrderId, systemDiscountScheduleId, ct);
 
             if (!result)
                 return StatusCode(StatusCodes.Status500InternalServerError, false);
@@ -84,6 +84,24 @@ namespace WayPoint_BFA.Controllers
             bool result = await _clientAgreementRepository.RemoveEntityProduct(workOrderClientAgreementEntityProductId, ct);
             return Ok(result);
         }
+
+        [HttpPost("RemoveEntities")]
+        public async Task<ActionResult<bool>> RemoveEntityProducts([FromBody] int[] ids, CancellationToken ct = default)
+        {
+            if (ids == null || ids.Length == 0)
+                return BadRequest("No ids supplied.");
+
+            bool result = await _clientAgreementRepository.RemoveEntityProducts(ids, ct);
+            return Ok(result);
+        }
+
+        [HttpPost("SaveProduct")]
+        public async Task<ActionResult<bool>> SaveWorkOrderClientAgreementProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
+        {
+            bool result = await _clientAgreementRepository.SaveWorkOrderClientAgreementProduct(workOrderClientAgreementEntityProduct, ct);
+            return Ok(result);
+        }
+
 
     }
 }

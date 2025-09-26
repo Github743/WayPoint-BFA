@@ -7,7 +7,7 @@ namespace WayPoint_Infrastructure.Interfaces
 {
     public interface IClientAgreementRepository
     {
-        Task<bool> SaveEntityProducts(List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts, int workOrderId, CancellationToken ct = default);
+        Task<bool> SaveEntityProducts(List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts, int workOrderId, int systemDiscountScheduleId, CancellationToken ct = default);
 
         Task<IReadOnlyList<WorkOrderClientAgreementEntityProduct>> GetWorkOrderClientAgreementEntityProducts(int workOrderId, CancellationToken ct = default);
 
@@ -18,5 +18,9 @@ namespace WayPoint_Infrastructure.Interfaces
         Task<bool> UpdateEntityProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default);
 
         Task<bool> RemoveEntityProduct(int workOrderClientAgreementEntityProductId, CancellationToken ct = default);
+
+        Task<bool> RemoveEntityProducts(int[] ids, CancellationToken ct = default);
+
+        Task<bool> SaveWorkOrderClientAgreementProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default);
     }
 }

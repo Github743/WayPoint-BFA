@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using WayPoint.Model;
 using WayPoint_Infrastructure.Data;
+using WayPoint_Infrastructure.Helpers;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_Infrastructure.Repositories
@@ -12,7 +13,7 @@ namespace WayPoint_Infrastructure.Repositories
 
         public async Task<bool> SaveEntityProducts(
             List<WorkOrderClientAgreementEntityProduct> workOrderClientAgreementEntityProducts,
-            int workOrderId, CancellationToken ct = default)
+            int workOrderId, int systemDiscountScheduleId, CancellationToken ct = default)
         {
             try
             {
@@ -21,13 +22,27 @@ namespace WayPoint_Infrastructure.Repositories
                 ct);
                 var now = DateTime.UtcNow;
 
-                var existingList = await _ef.RetrieveAsync<WorkOrderClientAgreementEntityProduct>(
+
+                workOrderClientAgreement.SystemDiscountScheduleId = systemDiscountScheduleId;
+                workOrderClientAgreement.LastUpdateDate = now;
+                workOrderClientAgreement.LastUpdatedBy = "dmeka";
+
+                var existingProducts = await _ef.RetrieveAsync<WorkOrderClientAgreementEntityProduct>(
                     e => e.WorkOrderClientAgreementId == workOrderClientAgreement.WorkOrderClientAgreementId,
                     ct: ct);
 
-                var existingById = existingList
-                    .Where(x => x.WorkOrderClientAgreementEntityProductId != 0)
-                    .ToDictionary(x => x.WorkOrderClientAgreementEntityProductId);
+                var products = existingProducts.Where(x => !x.Removed && !x.IsAdditionalDiscount).ToList();
+
+                products
+                    .ForEach(x =>
+                    {
+                        x.Removed = true;
+                        x.LastUpdatedBy = "dmeka";
+                        x.LastUpdateDate = DateTime.UtcNow;
+                    });
+
+                await _ef.SaveEntities(products,
+                    useTransaction: false, ct: ct, bulkOperation: null);
 
                 foreach (var e in workOrderClientAgreementEntityProducts)
                 {
@@ -40,6 +55,11 @@ namespace WayPoint_Infrastructure.Repositories
                         e.CreatedBy = "dmeka";
                     }
                 }
+
+                ModelHelper.UpdateModelState(workOrderClientAgreement, ObjectState.Modified, "dmeka", DateTime.Now); ;
+
+                await _sql.SaveEntityAsync(workOrderClientAgreement, ct: ct);
+
                 await _ef.SaveEntities(workOrderClientAgreementEntityProducts,
                     useTransaction: false, ct: ct, bulkOperation: null);
                 return true;
@@ -135,6 +155,62 @@ namespace WayPoint_Infrastructure.Repositories
             }
             catch (Exception ex) { return false; }
 
+        }
+
+        public async Task<bool> RemoveEntityProducts(int[] ids, CancellationToken ct = default)
+        {
+            if (ids == null) return false;
+            var idList = ids.Where(i => i > 0).Distinct().ToArray();
+            if (idList.Length == 0) return false;
+
+            var existingList = await _ef.RetrieveAsync<WorkOrderClientAgreementEntityProduct>(
+                e => idList.Contains(e.WorkOrderClientAgreementEntityProductId), ct: ct);
+
+            if (existingList == null || !existingList.Any())
+                return false;
+
+            existingList.ForEach(x =>
+            {
+                x.Removed = true;
+                x.LastUpdatedBy = "dmeka";
+                x.LastUpdateDate = DateTime.UtcNow;
+            });
+
+            await _ef.SaveEntities(existingList,
+                    ct: ct);
+            return true;
+
+        }
+
+        public async Task<bool> SaveWorkOrderClientAgreementProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
+        {
+            try
+            {
+                var queryable = await _sql.RetrieveObjectsAsync<SystemProductDiscountGroup>(
+                new { ProductGroup = workOrderClientAgreementEntityProduct.ProductGroupTypeId },
+                ct);
+
+                if (queryable == null || queryable.Count == 0) return false;
+
+                var entityProducts = queryable.Select(obj => new WorkOrderClientAgreementEntityProduct
+                {
+                    SystemProductId = obj.SystemProductId,
+                    Amount = null,
+                    IsAdditionalDiscount = true,
+                    WorkOrderClientAgreementId = workOrderClientAgreementEntityProduct.WorkOrderClientAgreementId,
+                    DiscountType = null,
+                    CreatedBy = "dmeka",
+                    CreationDate = DateTime.Now,
+                    LastUpdatedBy = "dmeka",
+                    LastUpdateDate = DateTime.Now
+                }).ToList();
+                await _ef.SaveEntities(entityProducts, ct: ct);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
