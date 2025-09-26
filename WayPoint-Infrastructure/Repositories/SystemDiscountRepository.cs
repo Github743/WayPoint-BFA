@@ -82,28 +82,6 @@ namespace WayPoint_Infrastructure.Repositories
 
             return discountProductsdiscount ?? empty;
         }
-        public async Task<IReadOnlyList<WorkOrderClientAgreementEntityProduct>> GeAdditionalDiscountWOClientAgreementProducts(
-         int workOrderClientAgreementId, int? systemProductId,
-         CancellationToken ct = default)
-        {
-            IReadOnlyList<WorkOrderClientAgreementEntityProduct> ldiscountProducts = Array.Empty<WorkOrderClientAgreementEntityProduct>();
-            if (systemProductId != null && systemProductId > 0)
-            {
-                var discountProductsLists = await _sql.RetrieveObjectsAsync<WorkOrderClientAgreementEntityProduct>(
-                    new { WorkOrderClientAgreementId = workOrderClientAgreementId, SystemProductId = systemProductId },
-                    ct);
-                ldiscountProducts = discountProductsLists.Where(x=>x.IsAdditionalDiscount==true).OrderBy(e=>e.Amount).ToList();
-            }
-            else
-            {
-                var discountProductsList = await _sql.RetrieveObjectsAsync<WorkOrderClientAgreementEntityProduct>(
-                                    new { WorkOrderClientAgreementId = workOrderClientAgreementId},
-                                    ct);
-                ldiscountProducts = discountProductsList.Where(x => x.IsAdditionalDiscount == true && x.WorkOrderClientAgreementEntityId == null).OrderBy(e => e.Amount).ToList();
-            }
-
-            return ldiscountProducts ;
-        }
         public async Task<IReadOnlyList<WorkOrderClientAgreementEntity>> GetWorkOrderClientAgreementEntities(
          int workOrderClientAgreementId, int clientId,
          CancellationToken ct = default)

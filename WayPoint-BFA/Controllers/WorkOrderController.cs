@@ -13,7 +13,6 @@ namespace WayPoint_BFA.Controllers
     public class WorkOrderController(IWorkOrder workorder) : ControllerBase
     {
         private readonly IWorkOrder _workorder = workorder;
-        // private readonly IBaseHelper _baseHelper = BaseHelper;
 
         [HttpGet("workorder/{workOrderId:int}")]
         public async Task<ActionResult<WorkOrder>> GetWorkOrder(int workOrderId, CancellationToken ct = default)
@@ -102,19 +101,18 @@ namespace WayPoint_BFA.Controllers
             var rows = await _workorder.GetPendingWorkOrdersbyContext(ClientId, systemWorkorderId, true, ct);
             return Ok(rows);
         }
-        [HttpGet("getWorkOrderPreValidation")]
-        public async Task<ActionResult<IReadOnlyList<WorkOrder>>> WorkOrderPreValidation([FromBody] WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
+        //[HttpPost("workOrderPreValidation")]
+        //public async Task<ActionResult<IReadOnlyList<WorkOrder>>> WorkOrderPreValidation([FromBody] WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
+        //{
+        //    workOrderCreationViewModel.SystemWorkOrderId = 1146;
+        //    var rows = await _workorder.GetSystemWorkOrderUserPermissions(workOrderCreationViewModel.SystemWorkOrderId, ct);
+        //    return Ok(rows);
+        //}
+        [HttpGet("workorderPrevalidations")]
+        public async Task<string> IsWorkOrderEligible(WorkOrderCreationViewModel creationData)
         {
-
-            var rows = await GetSystemWorkOrderUserPermissions(workOrderCreationViewModel.SystemWorkOrderId, ct);
-            return Ok(rows);
-        }
-        [HttpGet("getSystemWorkOrderUserPermissions")]
-        public async Task<UserPermissionViewModel> GetSystemWorkOrderUserPermissions(int systemWorkOrderId, CancellationToken ct = default)
-        {
-            UserPermissionViewModel model = new();
-            List<SystemWorkOrderGroup> systemWorkOrderGroups = await _workorder.GetSystemWorkOrderGroup(systemWorkOrderId, ct);
-            return model;
+            string valMsg = await _workorder.IsWorkOrderEligible(creationData);
+            return "";
         }
     }
 }

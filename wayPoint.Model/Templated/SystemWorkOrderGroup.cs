@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WayPoint.Model.Templated
+namespace WayPoint.Model
 {
     public partial class SystemWorkOrderGroup : BaseModel
     {

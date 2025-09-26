@@ -1,14 +1,16 @@
-﻿using Dapper;
+﻿using Microsoft.AspNetCore.Http;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using WayPoint.Model;
-using WayPoint.Model.Enhanced;
 using WayPoint.Model.Helper;
-using WayPoint.Model.ViewModels;
 using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Helpers;
 using WayPoint_Infrastructure.Interfaces;
+using static Dapper.SqlMapper;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace WayPoint_Infrastructure.Repositories
 {
@@ -50,16 +52,19 @@ namespace WayPoint_Infrastructure.Repositories
 
                 List<WorkOrderEntity> lWorkOrderEntity = null;
 
-
-                await _sql.WithDbTransactionAsync(async (conn, tran) =>
+                string validationMessage = await IsWorkOrderEligible(workOrderCreationViewModel, ct);
+                if (validationMessage == null) 
                 {
-                    var newWorkOrderEntity = await AddEntityAsync(entity, tran, ct);
-                    workOrder = await AddWorkOrder(workOrderCreationViewModel, newWorkOrderEntity, tran, ct);
-                    lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
-                    await CreateWorkOrderItemEntities(systemCreationData, workOrderCreationViewModel, workOrder, lWorkOrderEntity, tran, ct);
-                    await AddWOHistory(workOrderCreationViewModel, workOrder, tran, ct);
-                });
-                await SaveClientAgreement(workOrder.WorkOrderId, ct);
+                    await _sql.WithDbTransactionAsync(async (conn, tran) =>
+                    {
+                        var newWorkOrderEntity = await AddEntityAsync(entity, tran, ct);
+                        workOrder = await AddWorkOrder(workOrderCreationViewModel, newWorkOrderEntity, tran, ct);
+                        lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
+                        await CreateWorkOrderItemEntities(systemCreationData, workOrderCreationViewModel, workOrder, lWorkOrderEntity, tran, ct);
+                        await AddWOHistory(workOrderCreationViewModel, workOrder, tran, ct);
+                    });
+                    await SaveClientAgreement(workOrder.WorkOrderId, ct);
+                }   
             }
             catch (Exception ex)
             {
@@ -514,14 +519,112 @@ namespace WayPoint_Infrastructure.Repositories
             }
             return workOrders;
         }
-        public async Task<List<SystemWorkOrderGroup>> GetSystemWorkOrderGroup(int systemWorkOrderId, CancellationToken ct = default)
+        //public async Task<UserPermissionViewModel> GetSystemWorkOrderUserPermissions(int systemWorkOrderId, CancellationToken ct = default)
+        //{
+        //    UserPermissionViewModel model = new();
+        //    var systemWorkOrderGroups = await GetSystemWorkOrderGroup(systemWorkOrderId, ct);
+        //    var userToken = await GetUserTokenfromCookies(ct);
+        //    return model;
+        //}
+        //public async Task<List<SystemWorkOrderGroup>> GetSystemWorkOrderGroup(int systemWorkOrderId, CancellationToken ct = default)
+        //{
+        //    List<SystemWorkOrderGroup> systemWorkOrderGroup = new();
+
+        //    var result = await _sql.RetrieveObjectsAsync<SystemWorkOrderGroup>(
+        //        new { SystemWorkOrderId = systemWorkOrderId }, ct);
+        //    systemWorkOrderGroup = result.ToList();
+        //    return systemWorkOrderGroup;
+        //}
+        //public async Task<UserPermissionViewModel> GetUserTokenfromCookies(CancellationToken ct = default)
+        //{
+        //    UserPermissionViewModel userViewmodel = new();
+        //    var httpContext = _httpContextAccessor.HttpContext;
+        //    if (httpContext == null)
+        //        return null;
+
+        //    var tokenCookie = httpContext.Request.Cookies["Token_Cookie"];
+
+        //    if (!string.IsNullOrEmpty(tokenCookie))
+        //    {
+        //        var cookieData = JsonSerializer.Deserialize<Dictionary<string, string>>(tokenCookie);
+        //        var userTokenId = cookieData?["UserTokenID"];
+        //    }
+        //    return userViewmodel;
+        //}
+
+        public async Task<string> IsWorkOrderEligible(WorkOrderCreationViewModel creationData, CancellationToken ct = default)
         {
-            List<SystemWorkOrderGroup> systemWorkOrderGroup = new();
+            Vessel _vessel = new ();
+            string valMsg = String.Empty;
+            if (!creationData.IsNonLiberianActivity)
+            {
+                if (creationData.systemWorkOrder.VesselContext)
+                {
+                    _vessel = await _sql.RetrieveObjectAsync<Vessel>(
+                        new { VesselId = creationData.VesselId }, ct);
+                    valMsg = await CheckForSanctions(_vessel.Id, null, creationData.SystemWorkOrderId, null);
+                }
+            }
+            if (valMsg == null)
+            {
+                if (creationData.ClientId != null && creationData.ClientId > 0)
+                {
+                    IReadOnlyList<ClientRole> clientRoles = await _sql.RetrieveObjectsAsync<ClientRole>(
+                        new { ClientId = creationData.ClientId }, ct);
+                    ClientRole _clientRole = clientRoles.Where(x => x.ClientRoleName == ApplicationConstants.CLIENT_ROLE_BFA).FirstOrDefault();
+                    ClientRole _owingGroup = clientRoles.Where(x => x.ClientRoleName == ApplicationConstants.CLIENT_ROLE_OWNING_GROUP).FirstOrDefault();
+                    if (_clientRole != null)
+                    {
+                        valMsg = "This client is already enrolled in BFA program. Please proceed with Amend.";
+                    }
+                    if (valMsg == "")
+                    {
+                        if (creationData.ClientNumber.HasValue && _owingGroup == null)
+                        {
+                            IReadOnlyList<VesselClient> _lisVessel = await _sql.RetrieveObjectsAsync<VesselClient>(
+                                new { ClientNumber = creationData.ClientNumber.Value }, ct);
+                            var lisvessel = _lisVessel.Where(x => x.VesselStatus.ToLower() != ApplicationConstants.LOOKUPTYPE_VESSEL_STATUS_STRICKEN.ToLower()
+                            && x.ToDate == null && x.FlagStateName.ToLower() == ApplicationConstants.FLAGSTATE_LIBERIA.ToLower())
+                                .GroupBy(v => v.VesselId).Select(g => g.FirstOrDefault()).ToList();
 
-            var result = await _sql.RetrieveObjectsAsync<SystemWorkOrderGroup>(
-                new { SystemWorkOrderId = systemWorkOrderId }, ct);
-            return systemWorkOrderGroup;
+                            if (!lisvessel.Any())
+                            {
+                                valMsg = "This Client does not have any Vessels. Please select another Client with Vessels.";
+                            }
+                        }
+                    }
+                }
+            }
+            return valMsg;
         }
+        public async Task<string> CheckForSanctions(int? vesselId, int? clientId, int? systemWorkorderId, int? workOrderId)
+        {
+            string validationMessage = string.Empty;
+            var systemWorkOrderModel = await _sql.RetrieveObjectAsync<SystemWorkOrder>(
+                new { SystemWorkOrderId = systemWorkorderId });
+            if (systemWorkOrderModel.IsSanctionsCheckRequired)
+            {
+                if (vesselId.HasValue)
+                {
+                    Vessel vessel = await _sql.RetrieveObjectAsync<Vessel>(
+                    new { VesselId = vesselId });
+                    if (vessel.IsVesselSanctioned)
+                    {
+                        validationMessage = "The entity is sanctioned and service cannot be provided. Please contact at compliance@liscr.com.";
+                    }
+                }
+                else if (clientId.HasValue) 
+                {
+                    Client _client = await _sql.RetrieveObjectAsync<Client>(
+                        new { ClientId = clientId });
+                    if (_client.IsClientSanctioned)
+                    {
+                        validationMessage = "The entity is sanctioned and service cannot be provided. Please contact at compliance@liscr.com.";
+                    }
+                }
+            }
 
+                return validationMessage;
+        }
     }
 }
