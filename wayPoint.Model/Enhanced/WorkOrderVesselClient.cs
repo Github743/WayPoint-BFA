@@ -1,38 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WayPoint.Model.Enhanced
+﻿namespace WayPoint.Model
 {
-    public partial class WorkOrderVesselClient:WayPoint.Model.Templated.WorkOrderVesselClient
+    public partial class WorkOrderVesselClient
     {
-        public List<string> GetValidations()
-        {
-            List<string> validations = new List<string>();
-
-            if (ClientRoleId == null || ClientRoleId == 0)
-            {
-                validations.Add("The WorkOrderVesselClient lacks a client role id.");
-            }
-
-            return validations;
-        }
-
-        public VesselClient UpdateVesselClientDetails(VesselClient vesselClient)
-        {
-            vesselClient.ClientRoleId = ClientRoleId;
-
-            return vesselClient;
-        }
-
-        public VesselClient GetNewVesselClient()
-        {
-            VesselClient vesselClient = new VesselClient();
-            return UpdateVesselClientDetails(vesselClient);
-        }
-
         /// <summary>
         /// Get or Set the Official Number Property
         /// </summary>
@@ -41,7 +10,7 @@ namespace WayPoint.Model.Enhanced
         /// <summary>
         /// Get or Set the Vessel Name Property
         /// </summary>
-        public string VesselName { get; set; }
+        public string? VesselName { get; set; }
 
         /// <summary>
         /// Get or Set the IMO Number Property
@@ -76,7 +45,7 @@ namespace WayPoint.Model.Enhanced
         /// <summary>
         /// Get or Set the Client Name property
         /// </summary>
-        public string ClientName { get; set; }
+        public string? ClientName { get; set; }
 
         /// <summary>
         /// Get or Set the Department Role Id
@@ -101,7 +70,7 @@ namespace WayPoint.Model.Enhanced
         /// <summary>
         /// Get or Set the Client Role Name Property
         /// </summary>
-        public string ClientRoleName { get; set; }
+        public string? ClientRoleName { get; set; }
 
         public bool? RequirePrePayment { get; set; }
 
@@ -115,11 +84,11 @@ namespace WayPoint.Model.Enhanced
         /// <summary>
         /// Get or Set the Client Type Name property
         /// </summary>
-        public string ClientTypeName { get; set; }
+        public string? ClientTypeName { get; set; }
 
         public DateTime? EndDate { get; set; }
 
-        public string CompanyIMONumber { get; set; }
+        public string? CompanyIMONumber { get; set; }
         //public string ClientAddressAlpha3Code { get; set; }
 
     } // end class

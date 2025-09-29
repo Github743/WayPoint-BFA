@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -8,14 +7,11 @@ using WayPoint.Model.Helper;
 using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Helpers;
 using WayPoint_Infrastructure.Interfaces;
-using static Dapper.SqlMapper;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace WayPoint_Infrastructure.Repositories
 {
     public class WorkorderRepository(ISqlEngine sql, IEfReadEngine<WayPointDbContext> ef,
-        DbContext db) : IWorkOrder
+        DbContext db) : IWorkOrderRepository
     {
         private readonly ISqlEngine _sql = sql;
         private readonly IEfReadEngine<WayPointDbContext> _ef = ef;
@@ -50,21 +46,15 @@ namespace WayPoint_Infrastructure.Repositories
 
                 Entity entity = await GetEntityData(ct);
 
-                List<WorkOrderEntity> lWorkOrderEntity = null;
-
-                string validationMessage = await IsWorkOrderEligible(workOrderCreationViewModel, ct);
-                if (validationMessage == null) 
+                await _sql.WithDbTransactionAsync(async (conn, tran) =>
                 {
-                    await _sql.WithDbTransactionAsync(async (conn, tran) =>
-                    {
-                        var newWorkOrderEntity = await AddEntityAsync(entity, tran, ct);
-                        workOrder = await AddWorkOrder(workOrderCreationViewModel, newWorkOrderEntity, tran, ct);
-                        lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
-                        await CreateWorkOrderItemEntities(systemCreationData, workOrderCreationViewModel, workOrder, lWorkOrderEntity, tran, ct);
-                        await AddWOHistory(workOrderCreationViewModel, workOrder, tran, ct);
-                    });
-                    await SaveClientAgreement(workOrder.WorkOrderId, ct);
-                }   
+                    var newWorkOrderEntity = await AddEntityAsync(entity, tran, ct);
+                    workOrder = await AddWorkOrder(workOrderCreationViewModel, newWorkOrderEntity, tran, ct);
+                    List<WorkOrderEntity>  lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
+                    await CreateWorkOrderItemEntities(systemCreationData, workOrderCreationViewModel, workOrder, lWorkOrderEntity, tran, ct);
+                    await AddWOHistory(workOrderCreationViewModel, workOrder, tran, ct);
+                });
+                await SaveClientAgreement(workOrder.WorkOrderId, ct);
             }
             catch (Exception ex)
             {
@@ -345,31 +335,38 @@ namespace WayPoint_Infrastructure.Repositories
             int workOrderId,
             CancellationToken ct = default)
         {
-            var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+            try
+            {
+                var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
 
-            if (workOrder.WorkOrderId == 0 )
-                throw new ArgumentException("Invalid workorder", nameof(workOrderId));
+                if (workOrder.WorkOrderId == 0)
+                    throw new ArgumentException("Invalid workorder", nameof(workOrderId));
 
-            string tableName = "ClientAgreement";
-            var kvPairs = await _ef.ExecuteQueryAsync(ctx =>
-            from wos in ctx.Set<WorkOrderSettingField>().AsNoTracking()
-            join msf in ctx.Set<SystemWorkOrderSettingField>().AsNoTracking()
-            on wos.SystemWorkOrderSettingFieldId equals msf.SystemWorkOrderSettingFieldId
-            join sos in ctx.Set<SystemWorkOrderSetting>()
-            on msf.SystemWorkOrderSettingId equals sos.SystemWorkOrderSettingId
-            where wos.WorkOrderId == workOrderId
-            && !wos.Removed && !msf.Removed && !sos.Removed
-            && msf.TableName == tableName
-            select new KeyValueDto { ColumnName = msf.ColumnName, Value = wos.Value }, ct);
+                string tableName = "ClientAgreement";
+                var kvPairs = await _ef.ExecuteQueryAsync(ctx =>
+                from wos in ctx.Set<WorkOrderSettingField>().AsNoTracking()
+                join msf in ctx.Set<SystemWorkOrderSettingField>().AsNoTracking()
+                on wos.SystemWorkOrderSettingFieldId equals msf.SystemWorkOrderSettingFieldId
+                join sos in ctx.Set<SystemWorkOrderSetting>()
+                on msf.SystemWorkOrderSettingId equals sos.SystemWorkOrderSettingId
+                where wos.WorkOrderId == workOrderId
+                && !wos.Removed && !msf.Removed && !sos.Removed
+                && msf.TableName == tableName
+                select new KeyValueDto { ColumnName = msf.ColumnName, Value = wos.Value }, ct);
 
-            var vm = DataMappingHelper.MapKeyValuePairsTo<BFADetailsViewModel>(
-                kvPairs.Select(k => (k.ColumnName ?? string.Empty, k.Value)));
+                var vm = DataMappingHelper.MapKeyValuePairsTo<BFADetailsViewModel>(
+                    kvPairs.Select(k => (k.ColumnName ?? string.Empty, k.Value)));
 
-            vm.ClientName = workOrder.ClientName;
-            vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
-            vm.WorkOrderId = workOrderId;
+                vm.ClientName = workOrder.ClientName;
+                vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
+                vm.WorkOrderId = workOrderId;
 
-            return vm;
+                return vm;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<bool> SaveOptionsAsync(BFADetailsViewModel dto, int workOrderId,
@@ -554,49 +551,29 @@ namespace WayPoint_Infrastructure.Repositories
 
         public async Task<string> IsWorkOrderEligible(WorkOrderCreationViewModel creationData, CancellationToken ct = default)
         {
-            Vessel _vessel = new ();
-            string valMsg = String.Empty;
-            if (!creationData.IsNonLiberianActivity)
-            {
-                if (creationData.systemWorkOrder.VesselContext)
-                {
-                    _vessel = await _sql.RetrieveObjectAsync<Vessel>(
-                        new { VesselId = creationData.VesselId }, ct);
-                    valMsg = await CheckForSanctions(_vessel.Id, null, creationData.SystemWorkOrderId, null);
-                }
-            }
-            if (valMsg == null)
-            {
-                if (creationData.ClientId != null && creationData.ClientId > 0)
-                {
-                    IReadOnlyList<ClientRole> clientRoles = await _sql.RetrieveObjectsAsync<ClientRole>(
-                        new { ClientId = creationData.ClientId }, ct);
-                    ClientRole _clientRole = clientRoles.Where(x => x.ClientRoleName == ApplicationConstants.CLIENT_ROLE_BFA).FirstOrDefault();
-                    ClientRole _owingGroup = clientRoles.Where(x => x.ClientRoleName == ApplicationConstants.CLIENT_ROLE_OWNING_GROUP).FirstOrDefault();
-                    if (_clientRole != null)
-                    {
-                        valMsg = "This client is already enrolled in BFA program. Please proceed with Amend.";
-                    }
-                    if (valMsg == "")
-                    {
-                        if (creationData.ClientNumber.HasValue && _owingGroup == null)
-                        {
-                            IReadOnlyList<VesselClient> _lisVessel = await _sql.RetrieveObjectsAsync<VesselClient>(
-                                new { ClientNumber = creationData.ClientNumber.Value }, ct);
-                            var lisvessel = _lisVessel.Where(x => x.VesselStatus.ToLower() != ApplicationConstants.LOOKUPTYPE_VESSEL_STATUS_STRICKEN.ToLower()
-                            && x.ToDate == null && x.FlagStateName.ToLower() == ApplicationConstants.FLAGSTATE_LIBERIA.ToLower())
-                                .GroupBy(v => v.VesselId).Select(g => g.FirstOrDefault()).ToList();
+            // if no client or client number -> nothing to validate
+            if (creationData?.ClientId is null || creationData.ClientId <= 0 || !creationData.ClientNumber.HasValue)
+                return string.Empty;
 
-                            if (!lisvessel.Any())
-                            {
-                                valMsg = "This Client does not have any Vessels. Please select another Client with Vessels.";
-                            }
-                        }
-                    }
-                }
-            }
-            return valMsg;
+            // fetch vessels for client number
+            var vessels = await _sql.RetrieveObjectsAsync<VesselClient>(
+                new { ClientNumber = creationData.ClientNumber.Value }, ct);
+
+            // filter eligible vessels and check distinct VesselId existence
+            bool hasEligibleVessel = vessels
+                .Where(x =>
+                    !string.Equals(x.VesselStatus, ApplicationConstants.LOOKUPTYPE_VESSEL_STATUS_STRICKEN, StringComparison.OrdinalIgnoreCase)
+                    && x.ToDate == null
+                    && string.Equals(x.FlagStateName, ApplicationConstants.FLAGSTATE_LIBERIA, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.VesselId)
+                .Distinct()
+                .Any();
+
+            return hasEligibleVessel
+                ? string.Empty
+                : "This Client does not have any Vessels. Please select another Client with Vessels.";
         }
+
         public async Task<string> CheckForSanctions(int? vesselId, int? clientId, int? systemWorkorderId, int? workOrderId)
         {
             string validationMessage = string.Empty;
@@ -613,7 +590,7 @@ namespace WayPoint_Infrastructure.Repositories
                         validationMessage = "The entity is sanctioned and service cannot be provided. Please contact at compliance@liscr.com.";
                     }
                 }
-                else if (clientId.HasValue) 
+                else if (clientId.HasValue)
                 {
                     Client _client = await _sql.RetrieveObjectAsync<Client>(
                         new { ClientId = clientId });
@@ -624,7 +601,7 @@ namespace WayPoint_Infrastructure.Repositories
                 }
             }
 
-                return validationMessage;
+            return validationMessage;
         }
     }
 }

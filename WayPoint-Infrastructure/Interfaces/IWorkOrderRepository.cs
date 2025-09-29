@@ -1,10 +1,8 @@
 ﻿using WayPoint.Model;
-using WayPoint.Model.Enhanced;
-using WayPoint.Model.ViewModels;
 
 namespace WayPoint_Infrastructure.Interfaces
 {
-    public interface IWorkOrder
+    public interface IWorkOrderRepository
     {
         Task<WorkOrder> GetWorkOrder(int workOrderId, CancellationToken ct);
         Task<WorkOrder> CreateWorkOrder(WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default);

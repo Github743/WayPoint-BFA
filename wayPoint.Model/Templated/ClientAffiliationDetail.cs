@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WayPoint.Model.Templated
+namespace WayPoint.Model
 {
     public partial class ClientAffiliationDetail : BaseModel
     {
@@ -49,7 +44,7 @@ namespace WayPoint.Model.Templated
         [Required]
         [StringLength(250)]
         [DisplayName("Client Name")]
-        public string ClientName { get; set; }
+        public string? ClientName { get; set; }
 
         ///<summary>
         /// Get or Set the ClientNumber Property of ClientAffiliationDetail
@@ -103,7 +98,7 @@ namespace WayPoint.Model.Templated
         [Required]
         [StringLength(250)]
         [DisplayName("Affiliated Client Name")]
-        public string AffiliatedClientName { get; set; }
+        public string? AffiliatedClientName { get; set; }
 
         ///<summary>
         /// Get or Set the AffiliatedClientNumber Property of ClientAffiliationDetail
@@ -129,7 +124,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(4096)]
         [DisplayName("Affiliated Client Roles")]
-        public string AffiliatedClientRoles { get; set; }
+        public string? AffiliatedClientRoles { get; set; }
 
         ///<summary>
         /// Get or Set the AffiliatedClientStatus Property of ClientAffiliationDetail
@@ -138,7 +133,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(150)]
         [DisplayName("Affiliated Client Status")]
-        public string AffiliatedClientStatus { get; set; }
+        public string? AffiliatedClientStatus { get; set; }
 
         ///<summary>
         /// Get or Set the Address Property of ClientAffiliationDetail
@@ -147,7 +142,7 @@ namespace WayPoint.Model.Templated
         [Required]
         [StringLength(752)]
         [DisplayName("Address")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         ///<summary>
         /// Get or Set the City Property of ClientAffiliationDetail
@@ -156,7 +151,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(50)]
         [DisplayName("City")]
-        public string City { get; set; }
+        public string? City { get; set; }
 
         ///<summary>
         /// Get or Set the County Property of ClientAffiliationDetail
@@ -165,7 +160,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(50)]
         [DisplayName("County")]
-        public string County { get; set; }
+        public string? County { get; set; }
 
         ///<summary>
         /// Get or Set the State Property of ClientAffiliationDetail
@@ -174,7 +169,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(50)]
         [DisplayName("State")]
-        public string State { get; set; }
+        public string? State { get; set; }
 
         ///<summary>
         /// Get or Set the Province Property of ClientAffiliationDetail
@@ -183,7 +178,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(50)]
         [DisplayName("Province")]
-        public string Province { get; set; }
+        public string? Province { get; set; }
 
         ///<summary>
         /// Get or Set the PostalCode Property of ClientAffiliationDetail
@@ -192,7 +187,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(50)]
         [DisplayName("Postal Code")]
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
 
         ///<summary>
         /// Get or Set the Country Property of ClientAffiliationDetail
@@ -201,7 +196,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(150)]
         [DisplayName("Country")]
-        public string Country { get; set; }
+        public string? Country { get; set; }
 
         ///<summary>
         /// Get or Set the ActiveVesselCount Property of ClientAffiliationDetail
@@ -248,7 +243,7 @@ namespace WayPoint.Model.Templated
 
         [StringLength(150)]
         [DisplayName("Owning Group Client Country")]
-        public string OwningGroupClientCountry { get; set; }
+        public string? OwningGroupClientCountry { get; set; }
         #endregion
     }
 }

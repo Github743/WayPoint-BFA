@@ -1,18 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
-using WayPoint.Model.Enhanced;
-using WayPoint.Model.Helper;
 //using WayPoint.Model.IHelper;
-using WayPoint.Model.ViewModels;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_BFA.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class WorkOrderController(IWorkOrder workorder) : ControllerBase
+    public class WorkOrderController(IWorkOrderRepository workorder) : ControllerBase
     {
-        private readonly IWorkOrder _workorder = workorder;
+        private readonly IWorkOrderRepository _workorder = workorder;
 
         [HttpGet("workorder/{workOrderId:int}")]
         public async Task<ActionResult<WorkOrder>> GetWorkOrder(int workOrderId, CancellationToken ct = default)
@@ -108,11 +105,10 @@ namespace WayPoint_BFA.Controllers
         //    var rows = await _workorder.GetSystemWorkOrderUserPermissions(workOrderCreationViewModel.SystemWorkOrderId, ct);
         //    return Ok(rows);
         //}
-        [HttpGet("workorderPrevalidations")]
+        [HttpPost("workorderPrevalidations")]
         public async Task<string> IsWorkOrderEligible(WorkOrderCreationViewModel creationData)
         {
-            string valMsg = await _workorder.IsWorkOrderEligible(creationData);
-            return "";
+            return await _workorder.IsWorkOrderEligible(creationData);
         }
     }
 }
