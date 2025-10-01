@@ -34,6 +34,10 @@
         public const string INSPECTION_TYPE_INTIAL = "Initial";
         public const string CERTIFICATE_STATUS_ACTIVE = "Active";
         public const string BILLING_CYCLE_YEAR = "BillingCycleYear";
+        public const string REREGISTRATION_SYSTEM_WORKORDER_ITEM_INTERIMOWNER_INVOICE = "Interim Owner Invoice";
+        public const string REREGISTRATION_SYSTEM_WORKORDER_ITEM_INTERIMOWNER = "Interim Owner";
+        public const string NOTETYPE_NOTES = "Note";
+        public const string NOTESUBTYPE_WOOUTGOINGDOC = "WorkOrder Outgoing Documents";
         #endregion
     }
 }
