@@ -21,12 +21,16 @@ builder.Services.AddScoped<ISqlEngine, SqlEngine>();
 builder.Services.AddScoped<IEfReadEngine<WayPointDbContext>, EfReadEngine<WayPointDbContext>>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<ISystemWorkOrderRepository, SystemWorkOrderRepository>();
-builder.Services.AddScoped<IWorkOrder, WorkorderRepository>();
+builder.Services.AddScoped<IWorkOrderRepository, WorkorderRepository>();
 builder.Services.AddScoped<ISystemDiscountRepository, SystemDiscountRepository>();
 builder.Services.AddScoped<ILookUpRepository, LookUpRepository>();
+builder.Services.AddScoped<IClientAgreementRepository, ClientAgreementRepository>();
+builder.Services.AddScoped<IWorkOrderInvoiceRepository, WorkOrderInvoiceRepository>();
+builder.Services.AddScoped<IDocuments, DocumentRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });

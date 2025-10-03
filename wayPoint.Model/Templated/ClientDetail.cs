@@ -35,7 +35,7 @@ namespace WayPoint.Model
         
         [StringLength(250)]
         [DisplayName("Client Name")]
-        public string ClientName { get; set; } = string.Empty;
+        public string? ClientName { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the ClientNumber Property of ClientDetail
@@ -53,7 +53,7 @@ namespace WayPoint.Model
         
         [StringLength(752)]
         [DisplayName("Address")]
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the City Property of ClientDetail
@@ -62,7 +62,7 @@ namespace WayPoint.Model
 
         [StringLength(50)]
         [DisplayName("City")]
-        public string City { get; set; } = string.Empty;
+        public string? City { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the County Property of ClientDetail
@@ -80,7 +80,7 @@ namespace WayPoint.Model
 
         [StringLength(50)]
         [DisplayName("State")]
-        public string State { get; set; } = string.Empty;
+        public string? State { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the Province Property of ClientDetail
@@ -89,7 +89,7 @@ namespace WayPoint.Model
 
         [StringLength(50)]
         [DisplayName("Province")]
-        public string Province { get; set; } = string.Empty;
+        public string? Province { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the PostalCode Property of ClientDetail
@@ -98,7 +98,7 @@ namespace WayPoint.Model
 
         [StringLength(50)]
         [DisplayName("Postal Code")]
-        public string PostalCode { get; set; } = string.Empty;
+        public string? PostalCode { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the Country Property of ClientDetail
@@ -107,7 +107,7 @@ namespace WayPoint.Model
 
         [StringLength(150)]
         [DisplayName("Country")]
-        public string Country { get; set; } = string.Empty;
+        public string? Country { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the PhoneNumber Property of ClientDetail
@@ -116,7 +116,7 @@ namespace WayPoint.Model
 
         [StringLength(50)]
         [DisplayName("Phone Number")]
-        public string PhoneNumber { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the EmailAddress Property of ClientDetail
@@ -125,7 +125,7 @@ namespace WayPoint.Model
 
         [StringLength(150)]
         [DisplayName("Email Address")]
-        public string EmailAddress { get; set; } = string.Empty;
+        public string? EmailAddress { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the CompanyIMONumber Property of ClientDetail
@@ -134,7 +134,7 @@ namespace WayPoint.Model
 
         [StringLength(10)]
         [DisplayName("Company IMO Number")]
-        public string CompanyIMONumber { get; set; } = string.Empty;
+        public string? CompanyIMONumber { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the Type Property of ClientDetail
@@ -143,7 +143,7 @@ namespace WayPoint.Model
 
         [StringLength(4096)]
         [DisplayName("Type")]
-        public string Type { get; set; } = string.Empty;
+        public string? Type { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the Fax Property of ClientDetail
@@ -152,7 +152,7 @@ namespace WayPoint.Model
 
         [StringLength(50)]
         [DisplayName("Fax")]
-        public string Fax { get; set; } = string.Empty;
+        public string? Fax { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the WebAddress Property of ClientDetail
@@ -161,7 +161,7 @@ namespace WayPoint.Model
 
         [StringLength(100)]
         [DisplayName("Web Address")]
-        public string WebAddress { get; set; } = string.Empty;
+        public string? WebAddress { get; set; } = string.Empty;
 
 
         [DisplayName("Create Date")]
@@ -174,7 +174,7 @@ namespace WayPoint.Model
 
         [StringLength(150)]
         [DisplayName("Business Division")]
-        public string BusinessDivision { get; set; } = string.Empty;
+        public string? BusinessDivision { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the Status Property of ClientDetail
@@ -183,7 +183,7 @@ namespace WayPoint.Model
 
         [StringLength(150)]
         [DisplayName("Status")]
-        public string Status { get; set; } = string.Empty;
+        public string? Status { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the AddressType Property of ClientDetail
@@ -192,7 +192,7 @@ namespace WayPoint.Model
 
         [StringLength(150)]
         [DisplayName("Address Type")]
-        public string AddressType { get; set; } = string.Empty;
+        public string? AddressType { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the IsPartOfOwningGroup Property of ClientDetail
@@ -210,7 +210,7 @@ namespace WayPoint.Model
 
         [StringLength(250)]
         [DisplayName("OG Client Name")]
-        public string OGClientName { get; set; } = string.Empty;
+        public string? OGClientName { get; set; } = string.Empty;
 
         ///<summary>
         /// Get or Set the OGClientNumber Property of ClientDetail

@@ -213,6 +213,8 @@ namespace WayPoint.Model
         [DbIgnore]
         public string? SystemWorkOrderName { get; set; }
         [DbIgnore]
+        public string? SystemDiscountScheduleName { get; set; }
+        [DbIgnore]
         public string? WorkOrderStatus { get; set; } 
 
         #endregion

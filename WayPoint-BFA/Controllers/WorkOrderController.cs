@@ -1,14 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
+//using WayPoint.Model.IHelper;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_BFA.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class WorkOrderController(IWorkOrder workorder) : ControllerBase
+    public class WorkOrderController(IWorkOrderRepository workorder) : ControllerBase
     {
-        private readonly IWorkOrder _workorder = workorder;
+        private readonly IWorkOrderRepository _workorder = workorder;
+
+        [HttpGet("workorder/{workOrderId:int}")]
+        public async Task<ActionResult<WorkOrder>> GetWorkOrder(int workOrderId, CancellationToken ct = default)
+        {
+            var workOrder = await _workorder.GetWorkOrder(workOrderId, ct);
+            return Ok(workOrder);
+        }
 
         [HttpPost("createwo")]
         public async Task<ActionResult<WorkOrder>> CreateWorkOrder(
@@ -84,6 +92,23 @@ namespace WayPoint_BFA.Controllers
 
             return Ok(new { success = true });
         }
-
+        [HttpGet("pendingWorkOrders")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrder>>> GetPendingWorkOrders([FromQuery] int? systemWorkorderId, int? ClientId = null, CancellationToken ct = default)
+        {
+            var rows = await _workorder.GetPendingWorkOrdersbyContext(ClientId, systemWorkorderId, true, ct);
+            return Ok(rows);
+        }
+        //[HttpPost("workOrderPreValidation")]
+        //public async Task<ActionResult<IReadOnlyList<WorkOrder>>> WorkOrderPreValidation([FromBody] WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
+        //{
+        //    workOrderCreationViewModel.SystemWorkOrderId = 1146;
+        //    var rows = await _workorder.GetSystemWorkOrderUserPermissions(workOrderCreationViewModel.SystemWorkOrderId, ct);
+        //    return Ok(rows);
+        //}
+        [HttpPost("workorderPrevalidations")]
+        public async Task<string> IsWorkOrderEligible(WorkOrderCreationViewModel creationData)
+        {
+            return await _workorder.IsWorkOrderEligible(creationData);
+        }
     }
 }

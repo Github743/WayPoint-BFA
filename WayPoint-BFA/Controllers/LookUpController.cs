@@ -20,7 +20,7 @@ namespace WayPoint_BFA.Controllers
                 lookups = lookups.OrderBy(s => s.LookupId).ToList();
             return Ok(lookups);
         }
-        [HttpGet("getetLookupsByLookupTypeName")]
+        [HttpGet("lookupByName")]
         public async Task<ActionResult<IReadOnlyList<Lookup>>> GetLookupsByLookupTypeName([FromQuery] string LookupTypeName, CancellationToken ct = default)
         {
             var rows = await _lookUpRepository.GetLookupsByTypeName(LookupTypeName, ct);

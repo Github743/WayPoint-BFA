@@ -25,7 +25,7 @@
         public string VesselName { get; set; } = string.Empty;
         public int? UserId { get; set; }
         public int? ClientId { get; set; }
-        public int? ClientNumber { get; set; }
+        public int? ClientNumber { get; set; } 
         public string IdentificationColumn { get; set; } = string.Empty;
         public int? VesselId { get; set; }
         public bool? IsNonLibFlagForView { get; set; }

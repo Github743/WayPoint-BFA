@@ -5,12 +5,6 @@
         #region Properties
 
         /// <summary>
-        /// Get or Set System Discount Schedule Name Property
-        /// </summary>
-        [DbIgnore]
-        public string SystemDiscountScheduleName { get; set; } = string.Empty;
-
-        /// <summary>
         /// Get or Set System Discount Program Name Property
         /// </summary>
         [DbIgnore]

@@ -11,11 +11,15 @@ using WayPoint_Infrastructure.Interfaces;
 namespace WayPoint_Infrastructure.Repositories
 {
     public class WorkorderRepository(ISqlEngine sql, IEfReadEngine<WayPointDbContext> ef,
-        DbContext db) : IWorkOrder
+        DbContext db) : IWorkOrderRepository
     {
         private readonly ISqlEngine _sql = sql;
         private readonly IEfReadEngine<WayPointDbContext> _ef = ef;
         private readonly DbContext _db = db;
+        public async Task<WorkOrder> GetWorkOrder(int workOrderId, CancellationToken ct)
+        {
+            return await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+        }
         public async Task<WorkOrder> CreateWorkOrder(WorkOrderCreationViewModel workOrderCreationViewModel, CancellationToken ct = default)
         {
             WorkOrder workOrder = new();
@@ -42,14 +46,11 @@ namespace WayPoint_Infrastructure.Repositories
 
                 Entity entity = await GetEntityData(ct);
 
-                List<WorkOrderEntity> lWorkOrderEntity = null;
-
-
                 await _sql.WithDbTransactionAsync(async (conn, tran) =>
                 {
                     var newWorkOrderEntity = await AddEntityAsync(entity, tran, ct);
                     workOrder = await AddWorkOrder(workOrderCreationViewModel, newWorkOrderEntity, tran, ct);
-                    lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
+                    List<WorkOrderEntity>  lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
                     await CreateWorkOrderItemEntities(systemCreationData, workOrderCreationViewModel, workOrder, lWorkOrderEntity, tran, ct);
                     await AddWOHistory(workOrderCreationViewModel, workOrder, tran, ct);
                 });
@@ -334,31 +335,41 @@ namespace WayPoint_Infrastructure.Repositories
             int workOrderId,
             CancellationToken ct = default)
         {
-            var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+            try
+            {
+                var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
 
-            if (workOrder.WorkOrderId == 0 )
-                throw new ArgumentException("Invalid workorder", nameof(workOrderId));
+                if (workOrder.WorkOrderId == 0)
+                    throw new ArgumentException("Invalid workorder", nameof(workOrderId));
 
-            string tableName = "ClientAgreement";
-            var kvPairs = await _ef.ExecuteQueryAsync(ctx =>
-            from wos in ctx.Set<WorkOrderSettingField>().AsNoTracking()
-            join msf in ctx.Set<SystemWorkOrderSettingField>().AsNoTracking()
-            on wos.SystemWorkOrderSettingFieldId equals msf.SystemWorkOrderSettingFieldId
-            join sos in ctx.Set<SystemWorkOrderSetting>()
-            on msf.SystemWorkOrderSettingId equals sos.SystemWorkOrderSettingId
-            where wos.WorkOrderId == workOrderId
-            && !wos.Removed && !msf.Removed && !sos.Removed
-            && msf.TableName == tableName
-            select new KeyValueDto { ColumnName = msf.ColumnName, Value = wos.Value }, ct);
+                string tableName = "ClientAgreement";
+                var kvPairs = await _ef.ExecuteQueryAsync(ctx =>
+                from wos in ctx.Set<WorkOrderSettingField>().AsNoTracking()
+                join msf in ctx.Set<SystemWorkOrderSettingField>().AsNoTracking()
+                on wos.SystemWorkOrderSettingFieldId equals msf.SystemWorkOrderSettingFieldId
+                join sos in ctx.Set<SystemWorkOrderSetting>()
+                on msf.SystemWorkOrderSettingId equals sos.SystemWorkOrderSettingId
+                where wos.WorkOrderId == workOrderId
+                && !wos.Removed && !msf.Removed && !sos.Removed
+                && msf.TableName == tableName
+                select new KeyValueDto { ColumnName = msf.ColumnName, Value = wos.Value }, ct);
 
-            var vm = DataMappingHelper.MapKeyValuePairsTo<BFADetailsViewModel>(
-                kvPairs.Select(k => (k.ColumnName ?? string.Empty, k.Value)));
+                var vm = DataMappingHelper.MapKeyValuePairsTo<BFADetailsViewModel>(
+                    kvPairs.Select(k => (k.ColumnName ?? string.Empty, k.Value)));
 
-            vm.ClientName = workOrder.ClientName;
-            vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
-            vm.WorkOrderId = workOrderId;
-
-            return vm;
+                vm.ClientName = workOrder.ClientName;
+                vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
+                vm.WorkOrderId = workOrderId;
+                var clientAgreement =
+                    await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(
+                        new { workOrderId }, ct);
+                vm.WorkOrderClientAgreementId = clientAgreement.WorkOrderClientAgreementId;
+                return vm;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<bool> SaveOptionsAsync(BFADetailsViewModel dto, int workOrderId,
@@ -495,6 +506,105 @@ namespace WayPoint_Infrastructure.Repositories
                 throw;
             }
         }
+        public async Task<IReadOnlyList<WorkOrder>> GetPendingWorkOrdersbyContext(int? Filter, int? systemworkorderid, bool isClientContext, CancellationToken ct = default)
+        {
+            IReadOnlyList<WorkOrder> workOrders = Array.Empty<WorkOrder>();
 
+            if (isClientContext)
+            {
+                var results = await _sql.RetrieveObjectsAsync<WorkOrder>(
+                    new { ClientId = Filter, SystemWorkOrderId = systemworkorderid }, ct);
+
+                workOrders = results.ToList();
+            }
+            return workOrders;
+        }
+        //public async Task<UserPermissionViewModel> GetSystemWorkOrderUserPermissions(int systemWorkOrderId, CancellationToken ct = default)
+        //{
+        //    UserPermissionViewModel model = new();
+        //    var systemWorkOrderGroups = await GetSystemWorkOrderGroup(systemWorkOrderId, ct);
+        //    var userToken = await GetUserTokenfromCookies(ct);
+        //    return model;
+        //}
+        //public async Task<List<SystemWorkOrderGroup>> GetSystemWorkOrderGroup(int systemWorkOrderId, CancellationToken ct = default)
+        //{
+        //    List<SystemWorkOrderGroup> systemWorkOrderGroup = new();
+
+        //    var result = await _sql.RetrieveObjectsAsync<SystemWorkOrderGroup>(
+        //        new { SystemWorkOrderId = systemWorkOrderId }, ct);
+        //    systemWorkOrderGroup = result.ToList();
+        //    return systemWorkOrderGroup;
+        //}
+        //public async Task<UserPermissionViewModel> GetUserTokenfromCookies(CancellationToken ct = default)
+        //{
+        //    UserPermissionViewModel userViewmodel = new();
+        //    var httpContext = _httpContextAccessor.HttpContext;
+        //    if (httpContext == null)
+        //        return null;
+
+        //    var tokenCookie = httpContext.Request.Cookies["Token_Cookie"];
+
+        //    if (!string.IsNullOrEmpty(tokenCookie))
+        //    {
+        //        var cookieData = JsonSerializer.Deserialize<Dictionary<string, string>>(tokenCookie);
+        //        var userTokenId = cookieData?["UserTokenID"];
+        //    }
+        //    return userViewmodel;
+        //}
+
+        public async Task<string> IsWorkOrderEligible(WorkOrderCreationViewModel creationData, CancellationToken ct = default)
+        {
+            // if no client or client number -> nothing to validate
+            if (creationData?.ClientId is null || creationData.ClientId <= 0 || !creationData.ClientNumber.HasValue)
+                return string.Empty;
+
+            // fetch vessels for client number
+            var vessels = await _sql.RetrieveObjectsAsync<VesselClient>(
+                new { ClientNumber = creationData.ClientNumber.Value }, ct);
+
+            // filter eligible vessels and check distinct VesselId existence
+            bool hasEligibleVessel = vessels
+                .Where(x =>
+                    !string.Equals(x.VesselStatus, ApplicationConstants.LOOKUPTYPE_VESSEL_STATUS_STRICKEN, StringComparison.OrdinalIgnoreCase)
+                    && x.ToDate == null
+                    && string.Equals(x.FlagStateName, ApplicationConstants.FLAGSTATE_LIBERIA, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.VesselId)
+                .Distinct()
+                .Any();
+
+            return hasEligibleVessel
+                ? string.Empty
+                : "This Client does not have any Vessels. Please select another Client with Vessels.";
+        }
+
+        public async Task<string> CheckForSanctions(int? vesselId, int? clientId, int? systemWorkorderId, int? workOrderId)
+        {
+            string validationMessage = string.Empty;
+            var systemWorkOrderModel = await _sql.RetrieveObjectAsync<SystemWorkOrder>(
+                new { SystemWorkOrderId = systemWorkorderId });
+            if (systemWorkOrderModel.IsSanctionsCheckRequired)
+            {
+                if (vesselId.HasValue)
+                {
+                    Vessel vessel = await _sql.RetrieveObjectAsync<Vessel>(
+                    new { VesselId = vesselId });
+                    if (vessel.IsVesselSanctioned)
+                    {
+                        validationMessage = "The entity is sanctioned and service cannot be provided. Please contact at compliance@liscr.com.";
+                    }
+                }
+                else if (clientId.HasValue)
+                {
+                    Client _client = await _sql.RetrieveObjectAsync<Client>(
+                        new { ClientId = clientId });
+                    if (_client.IsClientSanctioned)
+                    {
+                        validationMessage = "The entity is sanctioned and service cannot be provided. Please contact at compliance@liscr.com.";
+                    }
+                }
+            }
+
+            return validationMessage;
+        }     
     }
 }
