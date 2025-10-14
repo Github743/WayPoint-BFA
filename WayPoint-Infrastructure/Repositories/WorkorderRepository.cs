@@ -360,7 +360,10 @@ namespace WayPoint_Infrastructure.Repositories
                 vm.ClientName = workOrder.ClientName;
                 vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
                 vm.WorkOrderId = workOrderId;
-
+                var clientAgreement =
+                    await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(
+                        new { workOrderId }, ct);
+                vm.WorkOrderClientAgreementId = clientAgreement.WorkOrderClientAgreementId;
                 return vm;
             }
             catch (Exception ex)
