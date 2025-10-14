@@ -3,6 +3,7 @@
     public enum LookupTypeName
     {
         AddressType,
-        EntityType
+        EntityType,
+        FlagState
     }
 }

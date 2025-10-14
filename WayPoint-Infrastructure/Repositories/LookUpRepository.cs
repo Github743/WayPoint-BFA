@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WayPoint.Model;
+using WayPoint.Model.Helper;
 using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Interfaces;
 
@@ -29,6 +30,10 @@ namespace WayPoint_Infrastructure.Repositories
                     return empty;
                 return lookups ?? empty;
             }
+        }
+        public async Task<Lookup> GetLookupByTypeName(string lookupName, LookupTypeName lookupTypeName, CancellationToken ct = default)
+        {
+                return await _sql.RetrieveObjectAsync<Lookup>(new { Name = lookupName, LookupTypeName= lookupTypeName.ToString() },ct);
         }
     }
 }

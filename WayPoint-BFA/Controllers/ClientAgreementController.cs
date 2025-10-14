@@ -1,7 +1,9 @@
 ﻿using IdentityModel.Client;
+using IdentityModel.OidcClient;
 using k8s.Models;
 using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
+using WayPoint.Model.ViewModels;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_BFA.Controllers
@@ -105,7 +107,32 @@ namespace WayPoint_BFA.Controllers
             bool result = await _clientAgreementRepository.SaveWorkOrderClientAgreementProduct(workOrderClientAgreementEntityProduct, ct);
             return Ok(result);
         }
-
-
+        [HttpPost("saveVesselbyId")]
+        public async Task<ActionResult<bool>> SaveWorkOrderClientAgreementEntityByEntityId(WorkOrderClientAgreementEntity workOrderClientAgreementEntity, int woClientAgreementId, int workOrderId, bool hasAdditionalDiscounts, CancellationToken ct = default)
+        {
+            bool result=false;
+            if (workOrderClientAgreementEntity != null && workOrderClientAgreementEntity.WorkOrderClientAgreementId > 0)
+            {
+                result = await _clientAgreementRepository.SaveWorkOrderClientAgreementEntityByEntityId(workOrderClientAgreementEntity, woClientAgreementId, workOrderId, hasAdditionalDiscounts, ct);
+            }
+            return Ok(result);
+        }
+        [HttpPost("saveVessels")]
+        public async Task<ActionResult<bool>> SaveWorkOrderClientAgreementVesselEntities(WorkOrderClientAgreementViewModel workOrderClientAgreementViewModel, CancellationToken ct = default)
+        {
+            bool result = await _clientAgreementRepository.SaveWorkOrderClientAgreementVesselEntities(workOrderClientAgreementViewModel, ct);
+            return Ok(result);
+        }
+        [HttpPost("updateVesselbyId")]
+        public async Task<ActionResult<WorkOrderClientAgreementEntity>> SaveWorkOrderClientAgreementEntity(WorkOrderClientAgreementEntity workOrderClientAgreementEntity, int woClientAgreementId, CancellationToken ct = default)
+        {
+            return await _clientAgreementRepository.SaveWorkOrderClientAgreementEntityById(workOrderClientAgreementEntity, woClientAgreementId, ct);
+        }
+        [HttpPost("update-entity-products")]
+        public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> SaveWorkOrderClientAgreementEntityProducts(List<WorkOrderClientAgreementEntityProduct> lWorkOrderClientAgreementEntityProducts, int woClientAgreementId, int entityId, int systemDiscountScheduleId, bool isCustomFees, CancellationToken ct = default)
+        {
+            var _entityProducts= await _clientAgreementRepository.SaveWorkOrderClientAgreementEntityProducts(lWorkOrderClientAgreementEntityProducts, woClientAgreementId, entityId, systemDiscountScheduleId, isCustomFees, ct);
+            return Ok(_entityProducts);
+        }
     }
 }

@@ -38,6 +38,16 @@
         public const string REREGISTRATION_SYSTEM_WORKORDER_ITEM_INTERIMOWNER = "Interim Owner";
         public const string NOTETYPE_NOTES = "Note";
         public const string NOTESUBTYPE_WOOUTGOINGDOC = "WorkOrder Outgoing Documents";
+        public const string VESSEL = "Vessel";
+        public const string SIGNED_AND_RECEIVED = "Signed & Received";
+        public const string DISCOUNT_PROGRAM_ADA = "Audit Discount";
+        public const string CERTIFICATE_STATUS_PENDING = "Pending";
+        public const string WORKORDER_DOCUMENT_APPENDIX1 = "Appendix - 1";
+        public const string REGISTRATION_PROVISIONALCERTIFICATEOFREGISTRY_EXPEDITE = "Expedited Provisional Certificate of Registry";
+        public const string INSPECTION_TYPE_INTERIM = "Interim";
+        public const string INSPECTION_CERT_TYPE = "Full Term";
+        public const string ISSUE_TONNAGE_AGREEMENT_WO = "Issue Tonnage Agreement";
+        public const string AMEND_TONNAGE_AGREEMENT_WO = "Amend Tonnage Agreement";
         #endregion
     }
 }
