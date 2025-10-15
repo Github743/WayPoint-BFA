@@ -9,6 +9,6 @@ namespace WayPoint_Infrastructure.Interfaces
 {
     public interface IVesselRepository
     {
-        Task<IReadOnlyList<Vessel>> GetVessels(string clientSearch, CancellationToken ct = default);
+        Task<IReadOnlyList<Vessel>> GetVessels(string clientSearch, bool nonLibFlag, int systemWorkorderId, CancellationToken ct = default);
     }
 }
