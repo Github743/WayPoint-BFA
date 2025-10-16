@@ -7,6 +7,7 @@ namespace WayPoint.Model
         public string StatusName { get; set; } = string.Empty;
         public string BusinessTypeName { get; set; } = string.Empty;
         public bool ClientSelected { get; set; }
+
         [DisplayName("TOTAL VESSELS")]
         public int TotalVessels { get; set; }
         public List<string> Notes { get; set; } = [];

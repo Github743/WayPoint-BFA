@@ -24,10 +24,10 @@ namespace WayPoint.Model
         [Required]
         [StringLength(150)]
         [DisplayName("Product")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [DisplayName("Product Code")]
-        public string ProductCode { get; set; }
+        public string? ProductCode { get; set; }
 
         public int WorkOrderItemEntityId { get; set; }
 

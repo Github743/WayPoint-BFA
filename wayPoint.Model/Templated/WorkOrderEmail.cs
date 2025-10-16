@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace WayPoint.Model
-{ 
+{
     public partial class WorkOrderEmail : BaseModel
     {
         #region Properties

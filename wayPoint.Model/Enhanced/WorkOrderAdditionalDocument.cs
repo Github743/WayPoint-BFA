@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
 
 namespace WayPoint.Model
 {
@@ -59,7 +57,7 @@ namespace WayPoint.Model
         [Required]
         [StringLength(150)]
         [DisplayName("Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         ///<summary>
         /// Get or Set the Description Property of WorkOrderAdditionalDocument
@@ -68,7 +66,7 @@ namespace WayPoint.Model
 
         [StringLength(250)]
         [DisplayName("Description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         ///<summary>
         /// Get or Set the InternalOnly Property of WorkOrderAdditionalDocument
@@ -95,7 +93,7 @@ namespace WayPoint.Model
 
         [StringLength(255)]
         [DisplayName("File Name")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         ///<summary>
         /// Get or Set the FileType Property of WorkOrderAdditionalDocument
@@ -104,7 +102,7 @@ namespace WayPoint.Model
 
         [StringLength(255)]
         [DisplayName("File Type")]
-        public string FileType { get; set; }
+        public string? FileType { get; set; }
 
         #endregion
     }

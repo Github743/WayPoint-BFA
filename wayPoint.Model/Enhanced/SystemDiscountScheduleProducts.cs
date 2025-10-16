@@ -13,12 +13,12 @@ namespace WayPoint.Model
         /// <summary>
         /// Get or Set Discount Type Name Property
         /// </summary>
-        public string DiscountTypeName { get; set; } = string.Empty;
+        public string? DiscountTypeName { get; set; } = string.Empty;
 
         /// <summary>
         /// Get or Set System Product Name Property
         /// </summary>
-        public string SystemProductName { get; set; } = string.Empty;
+        public string? SystemProductName { get; set; } = string.Empty;
 
         /// <summary>
         /// Get or Set System Product Amount Property
@@ -28,12 +28,12 @@ namespace WayPoint.Model
         /// <summary>
         /// Get or Set System Discount Schedule Name Property
         /// </summary>
-        public string SystemDiscountScheduleName { get; set; } = string.Empty;
+        public string? SystemDiscountScheduleName { get; set; } = string.Empty;
 
         /// <summary>
         /// Get or Set Product Code Property
         /// </summary>
-        public string ProductCode { get; set; } = string.Empty;
+        public string? ProductCode { get; set; } = string.Empty;
 
         /// <summary>
         /// Get or Set IsCustomized Property
@@ -43,12 +43,12 @@ namespace WayPoint.Model
         /// <summary>
         /// Get or Set Product Mapping Lookup Name Property
         /// </summary>
-        public string ProductMappingLookupName { get; set; } = string.Empty;
+        public string? ProductMappingLookupName { get; set; } = string.Empty;
 
         /// <summary>
         /// Get or Set Issue Type Name Property
         /// </summary>
-        public string IssueTypeName { get; set; } = string.Empty;
+        public string? IssueTypeName { get; set; } = string.Empty;
 
         #endregion
     }

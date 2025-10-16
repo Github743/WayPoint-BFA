@@ -7,7 +7,7 @@
         /// <summary>
         /// Get or Set Lookup Type Name
         /// </summary>
-        public string LookupTypeName { get; set; } = string.Empty;
+        public string? LookupTypeName { get; set; } = string.Empty;
         #endregion
     }
 }

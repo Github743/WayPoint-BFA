@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
@@ -13,6 +8,6 @@ namespace WayPoint.Model
         [Required]
         [StringLength(4096)]
         [DisplayName("Note")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
     }
 }
