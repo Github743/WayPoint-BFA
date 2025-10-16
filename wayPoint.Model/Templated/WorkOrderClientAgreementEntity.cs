@@ -1,7 +1,12 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
+    [Table("WorkOrderClientAgreementEntity", Schema = "WO")]
     public partial class WorkOrderClientAgreementEntity : BaseModel
     {
         #region Properties
@@ -20,6 +25,7 @@ namespace WayPoint.Model
         ///<summary>
         /// Get or Set the Id property of WorkOrderClientAgreementEntity
         ///</summary>
+        [NotMapped]
         public int Id { get { return WorkOrderClientAgreementEntityId; } set { WorkOrderClientAgreementEntityId = value; } }
 
         ///<summary>

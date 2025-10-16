@@ -2,6 +2,16 @@
 {
     public partial class VesselClient
     {
+        public WorkOrderVesselClient GetWorkOrderVesselClient()
+        {
+            WorkOrderVesselClient workOrderVesselClient = new WorkOrderVesselClient()
+            {
+                VesselClientId = VesselClientId,
+                ClientRoleId = ClientRoleId,
+            };
+
+            return workOrderVesselClient;
+        }
         public int? IMONumber { get; set; }
         public int? OfficialNumber { get; set; }
         public string? Name { get; set; }

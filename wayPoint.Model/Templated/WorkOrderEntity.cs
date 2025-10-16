@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WayPoint.Model
 {
+    [Table("WorkOrderEntity", Schema = "WO")]
     public partial class WorkOrderEntity : BaseModel
     {
         #region Properties

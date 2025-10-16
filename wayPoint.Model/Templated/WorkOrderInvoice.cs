@@ -10,7 +10,7 @@ namespace WayPoint.Model
         ///<summary>
         /// returns the schema name of the table
         ///</summary>
-        public override string? SchemaName
+        public override string SchemaName
         {
             get
             {

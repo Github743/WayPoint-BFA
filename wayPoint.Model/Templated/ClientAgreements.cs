@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
-    [Table("WorkOrderClientAgreement", Schema = "WO")]
-    public partial class WorkOrderClientAgreement : BaseModel
+    public partial class ClientAgreements : BaseModel
     {
         #region Properties
 
@@ -16,57 +19,53 @@ namespace WayPoint.Model
         {
             get
             {
-                return "WO.usp_";
+                return "FN";
             }
         } // end of schema name property 
 
         ///<summary>
-        /// Get or Set the WorkOrderClientAgreementId Property of WorkOrderClientAgreement
-        /// WorkOrderClientAgreementId is Not Nullable
+        /// Get or Set the Id property of ClientAgreements
+        ///</summary>
+        public int Id { get { return ClientAgreementId; } set { ClientAgreementId = value; } }
+
+        ///<summary>
+        /// Get or Set the ClientAgreementId Property of ClientAgreements
+        /// ClientAgreementId is Not Nullable
         ///</summary>
 
 
-        [DisplayName("Work Order Client Agreement Id")]
-        public int WorkOrderClientAgreementId { get; set; }
+        [DisplayName("Client Agreement Id")]
+        public int ClientAgreementId { get; set; }
 
         ///<summary>
-        /// Get or Set the WorkOrderItemEntityId Property of WorkOrderClientAgreement
-        /// WorkOrderItemEntityId is Not Nullable
+        /// Get or Set the SystemDiscountProgramTypeId Property of ClientAgreements
+        /// SystemDiscountProgramTypeId is Not Nullable
         ///</summary>
 
 
-        [DisplayName("Work Order Item Entity Id")]
-        public int WorkOrderItemEntityId { get; set; }
+        [DisplayName("System Discount Program Type Id")]
+        public int SystemDiscountProgramTypeId { get; set; }
 
         ///<summary>
-        /// Get or Set the ClientId Property of WorkOrderClientAgreement
+        /// Get or Set the ClientId Property of ClientAgreements
         /// ClientId is Not Nullable
         ///</summary>
 
 
         [DisplayName("Client Id")]
-        public int? ClientId { get; set; }
+        public int ClientId { get; set; }
 
         ///<summary>
-        /// Get or Set the SystemDiscountProgramId Property of WorkOrderClientAgreement
-        /// SystemDiscountProgramId is Not Nullable
-        ///</summary>
-
-
-        [DisplayName("System Discount Program Id")]
-        public int SystemDiscountProgramId { get; set; }
-
-        ///<summary>
-        /// Get or Set the SystemDiscountScheduleId Property of WorkOrderClientAgreement
-        /// SystemDiscountScheduleId is Nullable 
+        /// Get or Set the SystemDiscountScheduleId Property of ClientAgreements
+        /// SystemDiscountScheduleId is Not Nullable
         ///</summary>
 
 
         [DisplayName("System Discount Schedule Id")]
-        public int? SystemDiscountScheduleId { get; set; }
+        public int SystemDiscountScheduleId { get; set; }
 
         ///<summary>
-        /// Get or Set the AgreementDate Property of WorkOrderClientAgreement
+        /// Get or Set the AgreementDate Property of ClientAgreements
         /// AgreementDate is Nullable 
         ///</summary>
 
@@ -75,7 +74,7 @@ namespace WayPoint.Model
         public DateTime? AgreementDate { get; set; }
 
         ///<summary>
-        /// Get or Set the SignedDate Property of WorkOrderClientAgreement
+        /// Get or Set the SignedDate Property of ClientAgreements
         /// SignedDate is Nullable 
         ///</summary>
 
@@ -84,7 +83,7 @@ namespace WayPoint.Model
         public DateTime? SignedDate { get; set; }
 
         ///<summary>
-        /// Get or Set the AmendmentDate Property of WorkOrderClientAgreement
+        /// Get or Set the AmendmentDate Property of ClientAgreements
         /// AmendmentDate is Nullable 
         ///</summary>
 
@@ -93,7 +92,7 @@ namespace WayPoint.Model
         public DateTime? AmendmentDate { get; set; }
 
         ///<summary>
-        /// Get or Set the TerminationDate Property of WorkOrderClientAgreement
+        /// Get or Set the TerminationDate Property of ClientAgreements
         /// TerminationDate is Nullable 
         ///</summary>
 
@@ -102,7 +101,7 @@ namespace WayPoint.Model
         public DateTime? TerminationDate { get; set; }
 
         ///<summary>
-        /// Get or Set the IsMLCOption Property of WorkOrderClientAgreement
+        /// Get or Set the IsMLCOption Property of ClientAgreements
         /// IsMLCOption is Not Nullable
         ///</summary>
 
@@ -111,7 +110,7 @@ namespace WayPoint.Model
         public bool IsMLCOption { get; set; }
 
         ///<summary>
-        /// Get or Set the IsISMOption Property of WorkOrderClientAgreement
+        /// Get or Set the IsISMOption Property of ClientAgreements
         /// IsISMOption is Not Nullable
         ///</summary>
 
@@ -120,7 +119,7 @@ namespace WayPoint.Model
         public bool IsISMOption { get; set; }
 
         ///<summary>
-        /// Get or Set the IsISPSOption Property of WorkOrderClientAgreement
+        /// Get or Set the IsISPSOption Property of ClientAgreements
         /// IsISPSOption is Not Nullable
         ///</summary>
 
@@ -129,7 +128,7 @@ namespace WayPoint.Model
         public bool IsISPSOption { get; set; }
 
         ///<summary>
-        /// Get or Set the HasAdditionalDiscounts Property of WorkOrderClientAgreement
+        /// Get or Set the HasAdditionalDiscounts Property of ClientAgreements
         /// HasAdditionalDiscounts is Not Nullable
         ///</summary>
 
@@ -138,7 +137,7 @@ namespace WayPoint.Model
         public bool HasAdditionalDiscounts { get; set; }
 
         ///<summary>
-        /// Get or Set the EnrollmentDate Property of WorkOrderClientAgreement
+        /// Get or Set the EnrollmentDate Property of ClientAgreements
         /// EnrollmentDate is Nullable 
         ///</summary>
 
@@ -147,7 +146,7 @@ namespace WayPoint.Model
         public DateTime? EnrollmentDate { get; set; }
 
         ///<summary>
-        /// Get or Set the CreateIntialInvoice Property of WorkOrderClientAgreement
+        /// Get or Set the CreateIntialInvoice Property of ClientAgreements
         /// CreateIntialInvoice is Not Nullable
         ///</summary>
 
@@ -156,7 +155,7 @@ namespace WayPoint.Model
         public bool CreateIntialInvoice { get; set; }
 
         ///<summary>
-        /// Get or Set the ConsolidatedStatement Property of WorkOrderClientAgreement
+        /// Get or Set the ConsolidatedStatement Property of ClientAgreements
         /// ConsolidatedStatement is Not Nullable
         ///</summary>
 
@@ -165,63 +164,68 @@ namespace WayPoint.Model
         public bool ConsolidatedStatement { get; set; }
 
         ///<summary>
-        /// Get or Set the AgreementText Property of WorkOrderClientAgreement
+        /// Get or Set the AgreementText Property of ClientAgreements
         /// AgreementText is Nullable 
         ///</summary>
 
         [StringLength(4096)]
         [DisplayName("Agreement Text")]
-        public string? AgreementText { get; set; } 
+        public string AgreementText { get; set; }
 
         ///<summary>
-        /// Get or Set the AppendixText Property of WorkOrderClientAgreement
+        /// Get or Set the AppendixText Property of ClientAgreements
         /// AppendixText is Nullable 
         ///</summary>
 
         [StringLength(4096)]
         [DisplayName("Appendix Text")]
-        public string? AppendixText { get; set; } 
+        public string AppendixText { get; set; }
 
         ///<summary>
-        /// Get or Set the TerminationReason Property of WorkOrderClientAgreement
+        /// Get or Set the TerminationReason Property of ClientAgreements
         /// TerminationReason is Nullable 
         ///</summary>
 
         [StringLength(4096)]
         [DisplayName("Termination Reason")]
-        public string? TerminationReason { get; set; } 
+        public string TerminationReason { get; set; }
 
         ///<summary>
-        /// Get or Set the IsSignedAndReceived Property of WorkOrderClientAgreement
-        /// IsSignedAndReceived is Not Nullable
+        /// Get or Set the Status Property of ClientAgreements
+        /// Status is Nullable 
         ///</summary>
 
 
-        [DisplayName("Is Signed And Received")]
-        public bool IsSignedAndReceived { get; set; }
+        [DisplayName("Status")]
+        public int? Status { get; set; }
 
+        ///<summary>
+        /// Get or Set the Proposal Date Property of ClientAgreements
+        /// Status is Nullable 
+        ///</summary>
         [DisplayName("Proposal Date")]
         public DateTime? ProposalDate { get; set; }
 
+        ///<summary>
+        /// Get or Set the Accepted By Property of ClientAgreements
+        /// Status is Nullable 
+        ///</summary>
         [DisplayName("Accepted By")]
-        public string? AcceptedBy { get; set; } 
+        public string AcceptedBy { get; set; }
 
+        ///<summary>
+        /// Get or Set the Approved By Property of ClientAgreements
+        /// Status is Nullable 
+        ///</summary>
         [DisplayName("Approved By")]
         public int? ApprovedBy { get; set; }
 
+        ///<summary>
+        /// Get or Set the Submitted By Property of ClientAgreements
+        /// Status is Nullable 
+        ///</summary>
         [DisplayName("Submitted By")]
-        public string? SubmittedBy { get; set; }
-
-        [DbIgnore]
-        [NotMapped]
-        public string? SystemWorkOrderName { get; set; }
-        [DbIgnore]
-        [NotMapped]
-        public string? SystemDiscountScheduleName { get; set; }
-        [DbIgnore]
-        [NotMapped]
-        public string? WorkOrderStatus { get; set; } 
-
+        public string SubmittedBy { get; set; }
         #endregion
     }
 }

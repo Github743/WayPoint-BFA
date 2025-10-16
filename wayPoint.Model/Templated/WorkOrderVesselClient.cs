@@ -1,7 +1,12 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WayPoint.Model
 {
+    [Table("WorkOrderVesselClient", Schema = "WO")]
     public partial class WorkOrderVesselClient : BaseModel
     {
         #region Properties
@@ -20,6 +25,7 @@ namespace WayPoint.Model
         ///<summary>
         /// Get or Set the Id property of WorkOrderVesselClient
         ///</summary>
+        [NotMapped]
         public int Id { get { return WorkOrderVesselClientId; } set { WorkOrderVesselClientId = value; } }
 
         ///<summary>
@@ -63,7 +69,7 @@ namespace WayPoint.Model
 
         [DisplayName("IsRemoved")]
         public bool IsRemoved { get; set; }
-
+        [NotMapped]
         [DisplayName("IsClientSanctioned")]
         public bool IsClientSanctioned { get; set; }
 
