@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WayPoint-Infrastructure", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WayPoint-Test", "WayPoint-Test\WayPoint-Test.csproj", "{BFABC544-D368-4D6D-9BE6-2D6EF29A3B50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WayPoint.Model", "wayPoint.Model\WayPoint.Model.csproj", "{4735DCDA-F480-4592-8395-0873A0A44843}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WayPoint.Model", "wayPoint.Model\WayPoint.Model.csproj", "{4735DCDA-F480-4592-8395-0873A0A44843}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
