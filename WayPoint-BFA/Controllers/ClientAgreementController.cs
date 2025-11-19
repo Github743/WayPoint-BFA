@@ -1,7 +1,4 @@
-﻿using IdentityModel.Client;
-using IdentityModel.OidcClient;
-using k8s.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
 using WayPoint.Model.ViewModels;
 using WayPoint_Infrastructure.Interfaces;
@@ -101,7 +98,7 @@ namespace WayPoint_BFA.Controllers
             return Ok(result);
         }
 
-        [HttpPost("SaveProduct")]
+        [HttpPost("updateBfaProduct")]
         public async Task<ActionResult<bool>> SaveWorkOrderClientAgreementProduct(WorkOrderClientAgreementEntityProduct workOrderClientAgreementEntityProduct, CancellationToken ct = default)
         {
             bool result = await _clientAgreementRepository.SaveWorkOrderClientAgreementProduct(workOrderClientAgreementEntityProduct, ct);
@@ -128,7 +125,7 @@ namespace WayPoint_BFA.Controllers
         {
             return await _clientAgreementRepository.SaveWorkOrderClientAgreementEntityById(workOrderClientAgreementEntity, woClientAgreementId, ct);
         }
-        [HttpPost("update-entity-products")]
+        [HttpPost("updateentityproducts")]
         public async Task<ActionResult<IReadOnlyList<WorkOrderClientAgreementEntityProduct>>> SaveWorkOrderClientAgreementEntityProducts(List<WorkOrderClientAgreementEntityProduct> lWorkOrderClientAgreementEntityProducts, int woClientAgreementId, int entityId, int systemDiscountScheduleId, bool isCustomFees, CancellationToken ct = default)
         {
             var _entityProducts= await _clientAgreementRepository.SaveWorkOrderClientAgreementEntityProducts(lWorkOrderClientAgreementEntityProducts, woClientAgreementId, entityId, systemDiscountScheduleId, isCustomFees, ct);

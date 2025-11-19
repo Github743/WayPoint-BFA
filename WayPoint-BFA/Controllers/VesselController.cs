@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WayPoint.Model;
-using WayPoint_Infrastructure.Data;
 using WayPoint_Infrastructure.Interfaces;
 
 namespace WayPoint_BFA.Controllers
@@ -15,7 +14,7 @@ namespace WayPoint_BFA.Controllers
         { 
             if (string.IsNullOrWhiteSpace(clientSearch)) return BadRequest("Search text is mandaotry");
 
-            var vessels = await vesselRepo.GetVessels(clientSearch,nonLibFlag,systemWorkorderId, ct);
+            var vessels = await _vesselRepo.GetVessels(clientSearch,nonLibFlag,systemWorkorderId, ct);
 
             vessels = vessels.Where(v => !isVesselSanctioned.HasValue || v.IsVesselSanctioned == isVesselSanctioned).ToList();
             var vesselSearchList = vessels.Select(v => new VesselSearch

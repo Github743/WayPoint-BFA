@@ -445,6 +445,18 @@ namespace WayPoint_Infrastructure.Repositories
                 }
                 await _db.SaveChangesAsync(ct);
                 var workOrder = await _sql.RetrieveObjectAsync<WorkOrder>(new { workOrderId }, ct);
+                if (workOrder != null)
+                {
+                    var selected = new List<string>();
+
+                    if (dto.IsMLCOption) selected.Add("MLC");
+                    if (dto.IsISMOption) selected.Add("ISM");
+                    if (dto.IsISPSOption) selected.Add("ISPS");
+
+                    workOrder.Detail = string.Join(", ", selected);
+                    ModelHelper.UpdateModelState(workOrder, ObjectState.Modified, "dmeka", DateTime.Now);
+                    await _sql.SaveEntityAsync(workOrder, null, null, ct);
+                }
                 await SaveClientAgreement(workOrderId, ct, dto);
                 return true;
             }
