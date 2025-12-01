@@ -15,10 +15,13 @@
         public string WorkOrderName { get; set; } = string.Empty;
         public string Detail { get; set; } = string.Empty;
         public string Office { get; set; } = string.Empty;
+        public int ClientNumber { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public int ClientId { get; set; }
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
         public DateTime ActivationDate { get; set; }
         public string Status { get; set; } = string.Empty;
-        public int TotalCount { get; set; }
+        public int Total { get; set; }
     }
 }

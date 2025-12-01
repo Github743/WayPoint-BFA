@@ -50,7 +50,7 @@ namespace WayPoint_Infrastructure.Repositories
                 {
                     var newWorkOrderEntity = await AddEntityAsync(entity, tran, ct);
                     workOrder = await AddWorkOrder(workOrderCreationViewModel, newWorkOrderEntity, tran, ct);
-                    List<WorkOrderEntity>  lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
+                    List<WorkOrderEntity> lWorkOrderEntity = await CreateWorkOrderEntities(workOrder, lClient, tran, ct);
                     await CreateWorkOrderItemEntities(systemCreationData, workOrderCreationViewModel, workOrder, lWorkOrderEntity, tran, ct);
                     await AddWOHistory(workOrderCreationViewModel, workOrder, tran, ct);
                 });
@@ -314,10 +314,10 @@ namespace WayPoint_Infrastructure.Repositories
 
             var dp = new DynamicParameters();
             dp.Add("WorkOrderName", req.WorkOrderName);
-            dp.Add("WorkOrderId", req.WorkOrderId.HasValue && req.WorkOrderId > 0 ? req.WorkOrderId : null);
+            //dp.Add("WorkOrderId", req.WorkOrderId.HasValue && req.WorkOrderId > 0 ? req.WorkOrderId : null);
             dp.Add("Page", req.Page);
             dp.Add("PageSize", req.PageSize);
-            dp.Add("Status", req.Status);
+            //dp.Add("Status", req.Status);
             var workOrders = await _sql.RetrieveObjectsAsync<WorkOrderDetail>(
                 dp,
                 ct);
@@ -326,7 +326,7 @@ namespace WayPoint_Infrastructure.Repositories
             {
                 Page = page,
                 PageSize = pageSize,
-                TotalItems = workOrders.FirstOrDefault()?.TotalCount ?? 0,
+                Total = workOrders.FirstOrDefault()?.Total ?? 0,
                 Items = workOrders.ToList(),
             };
         }
@@ -360,6 +360,7 @@ namespace WayPoint_Infrastructure.Repositories
                 vm.ClientName = workOrder.ClientName;
                 vm.AgreementText = string.IsNullOrWhiteSpace(vm.AgreementText) ? workOrder.ClientName : vm.AgreementText;
                 vm.WorkOrderId = workOrderId;
+                vm.ClientId = workOrder.ClientId.HasValue ? workOrder.ClientId.Value : 0;
                 var clientAgreement =
                     await _sql.RetrieveObjectAsync<WorkOrderClientAgreement>(
                         new { workOrderId }, ct);
@@ -605,6 +606,6 @@ namespace WayPoint_Infrastructure.Repositories
             }
 
             return validationMessage;
-        }     
+        }
     }
 }

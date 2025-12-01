@@ -39,6 +39,7 @@ namespace WayPoint.Model
 
         public bool ReadOnlyMode { get; set; }
         public string? ClientName { get; set; }
+        public int ClientId { get; set; }
         public int WorkOrderClientAgreementId { get; set; }
     }
 

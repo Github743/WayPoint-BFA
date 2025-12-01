@@ -17,9 +17,12 @@ namespace WayPoint_Infrastructure.Repositories
                 ct
             );
 
-            var list = queryable.ToList();
+            var dict = queryable
+                .GroupBy(c => c.ClientId)
+                .ToDictionary(g => g.Key, g => g.First());
 
-            return new ReadOnlyCollection<ClientDetail>(list);
+            var result = dict.Values.ToList();
+            return result.AsReadOnly();
         }
 
         public async Task<Client> GetClient(int clientId, CancellationToken ct = default)
